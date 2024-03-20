@@ -1,4 +1,5 @@
 import pygame
+from pygame.locals import *
 
 # Inicialización de Pygame
 pygame.init()
@@ -9,10 +10,18 @@ CELL_SIZE = 80
 
 # Colores
 WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
 
 # Crear la ventana del juego
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Interfaz de juego con Pygame")
+
+# Interfaz 
+font = pygame.font.Font(None, 36)
+button_text = font.render("Iniciar!", True, BLACK)
+btn_Inciar = button_text.get_rect(center=(WIDTH/2, HEIGHT/2))
+
+txt_vidas = font.render("Vidas", True, BLACK)
 
 # Cargar las imágenes
 imagen_0 = pygame.image.load('pisos/tierra.png')
@@ -41,7 +50,7 @@ personajes = {direccion: [pygame.transform.scale(img, (CELL_SIZE, CELL_SIZE)) fo
 # Matriz del juego
 mapaJuego = [
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
     [1, 0, 0, 3, 2, 0, 0, 0, 0, 1],
     [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
     [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
@@ -78,8 +87,8 @@ def draw_map(mapa):
 def main():
     frame = 0
 
-    global pos_personaje_x, pos_personaje_y, direccion, old_pos_personaje_x, old_pos_personaje_y  # Para modificar las variables globales
-
+    global pos_personaje_x, pos_personaje_y, direccion, old_pos_personaje_x, old_pos_personaje_y , btn_Ini_Visble # Para modificar las variables globales
+    btn_Ini_Visble = True
     running = True
     while running:
         for event in pygame.event.get():
@@ -94,7 +103,7 @@ def main():
                         direccion = "arriba"
                 elif event.key == pygame.K_DOWN:
                     if pos_personaje_y < len(mapaJuego) - 1 and mapaJuego[pos_personaje_y + 1][pos_personaje_x] == 0:
-                        mapaJuego[pos_personaje_y][pos_personaje_x] = 0  # Restablecer la casilla anterior
+                        #mapaJuego[pos_personaje_y][pos_personaje_x] = 0  # Restablecer la casilla anterior
                         old_pos_personaje_x, old_pos_personaje_y = pos_personaje_x, pos_personaje_y
                         pos_personaje_y += 1
                         direccion = "abajo"
@@ -111,10 +120,15 @@ def main():
                         pos_personaje_x += 1
                         direccion = "derecha"
 
+            elif event.type == MOUSEBUTTONDOWN:
+                if btn_Inciar.collidepoint(event.pos):
+                    btn_Ini_Visble = False
+            
+
         # Dibujar el mapa del juego
         screen.fill(WHITE)
         draw_map(mapaJuego)
-
+        
         # Calcular la posición del personaje en la casilla actual
         personaje_pos_x = pos_personaje_x * CELL_SIZE
         personaje_pos_y = pos_personaje_y * CELL_SIZE
@@ -124,6 +138,10 @@ def main():
             frame = (frame + 1) % len(personajes[direccion])
 
         screen.blit(personajes[direccion][frame], (personaje_pos_x, personaje_pos_y))
+        screen.blit(txt_vidas, (10 ,10))
+        
+        if (btn_Ini_Visble ) :
+            screen.blit( button_text , btn_Inciar  )
 
         pygame.display.update()
 
