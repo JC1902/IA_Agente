@@ -7,7 +7,7 @@ pygame.init()
 # Dimensiones de la pantalla
 WIDTH, HEIGHT = 800, 800
 CELL_SIZE = 80
-
+VIDAS_MAX = 19
 # Colores
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
@@ -21,7 +21,10 @@ font = pygame.font.Font(None, 36)
 button_text = font.render("Iniciar!", True, BLACK)
 btn_Inciar = button_text.get_rect(center=(WIDTH/2, HEIGHT/2))
 
-txt_vidas = font.render("Vidas", True, BLACK)
+
+# Cargar y escalar las imágenes de los corazones
+img_vidas= [pygame.image.load(f'interfaz/vida_{i}.png') for i in range(2)]
+
 
 # Cargar las imágenes
 imagen_0 = pygame.image.load('pisos/tierra.png')
@@ -83,46 +86,71 @@ def draw_map(mapa):
             elif cell == 3:
                 screen.blit(imagen_3, (x * CELL_SIZE, y * CELL_SIZE))
 
+def dibujar_vidas (num_vidas):
+    # Dibujar los corazones en la pantalla
+    for i in range(VIDAS_MAX):
+        if i < num_vidas :
+            screen.blit(img_vidas[0], (i * 40, 10))
+        else :
+            screen.blit(img_vidas[1], (i * 40, 10))
+
+
 # Función principal del juego
 def main():
     frame = 0
 
-    global pos_personaje_x, pos_personaje_y, direccion, old_pos_personaje_x, old_pos_personaje_y , btn_Ini_Visble # Para modificar las variables globales
+    global pos_personaje_x, pos_personaje_y, direccion, old_pos_personaje_x, old_pos_personaje_y , btn_Ini_Visble  , vidas , move# Para modificar las variables globales
+    
+    move = False
+    vidas = VIDAS_MAX
     btn_Ini_Visble = True
     running = True
+    
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+            elif event.type == MOUSEBUTTONDOWN:
+                if btn_Inciar.collidepoint(event.pos):
+                    btn_Ini_Visble = False
+            
             elif event.type == pygame.KEYDOWN:  # Manejar eventos de teclado
+             
                 if event.key == pygame.K_UP:
                     if pos_personaje_y > 0 and mapaJuego[pos_personaje_y - 1][pos_personaje_x] == 0:
                         mapaJuego[pos_personaje_y][pos_personaje_x] = 0  # Restablecer la casilla anterior
                         old_pos_personaje_x, old_pos_personaje_y = pos_personaje_x, pos_personaje_y
                         pos_personaje_y -= 1
                         direccion = "arriba"
+                        vidas -= 1
+                        move = True
                 elif event.key == pygame.K_DOWN:
                     if pos_personaje_y < len(mapaJuego) - 1 and mapaJuego[pos_personaje_y + 1][pos_personaje_x] == 0:
                         #mapaJuego[pos_personaje_y][pos_personaje_x] = 0  # Restablecer la casilla anterior
                         old_pos_personaje_x, old_pos_personaje_y = pos_personaje_x, pos_personaje_y
                         pos_personaje_y += 1
+                        vidas -= 1
                         direccion = "abajo"
+                        move = True
                 elif event.key == pygame.K_LEFT:
                     if pos_personaje_x > 0 and mapaJuego[pos_personaje_y][pos_personaje_x - 1] == 0:
                         mapaJuego[pos_personaje_y][pos_personaje_x] = 0  # Restablecer la casilla anterior
                         old_pos_personaje_x, old_pos_personaje_y = pos_personaje_x, pos_personaje_y
                         pos_personaje_x -= 1
                         direccion = "izquierda"
+                        vidas -= 1
+                        move = True
                 elif event.key == pygame.K_RIGHT:
                     if pos_personaje_x < len(mapaJuego[0]) - 1 and mapaJuego[pos_personaje_y][pos_personaje_x + 1] == 0:
                         mapaJuego[pos_personaje_y][pos_personaje_x] = 0  # Restablecer la casilla anterior
                         old_pos_personaje_x, old_pos_personaje_y = pos_personaje_x, pos_personaje_y
                         pos_personaje_x += 1
                         direccion = "derecha"
+                        vidas -= 1
+            elif pos_personaje_x == 1 and pos_personaje_y == 1 :
+                vidas = VIDAS_MAX
 
-            elif event.type == MOUSEBUTTONDOWN:
-                if btn_Inciar.collidepoint(event.pos):
-                    btn_Ini_Visble = False
+           
             
 
         # Dibujar el mapa del juego
@@ -134,14 +162,17 @@ def main():
         personaje_pos_y = pos_personaje_y * CELL_SIZE
 
         # Cambiar al siguiente fotograma solo si se está moviendo
-        if (old_pos_personaje_x != pos_personaje_x or old_pos_personaje_y != pos_personaje_y):
-            frame = (frame + 1) % len(personajes[direccion])
+        if ( move ):
+            frame = (frame + 1) % 2
+            move = False
+            
 
         screen.blit(personajes[direccion][frame], (personaje_pos_x, personaje_pos_y))
-        screen.blit(txt_vidas, (10 ,10))
+        
+        dibujar_vidas(vidas)
         
         if (btn_Ini_Visble ) :
-            screen.blit( button_text , btn_Inciar  )
+            screen.blit( button_text , btn_Inciar )
 
         pygame.display.update()
 
