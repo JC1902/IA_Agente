@@ -1,5 +1,6 @@
 import pygame
 from assets import *
+import random
 
 # Inicialización de Pygame
 pygame.init()
@@ -50,14 +51,26 @@ def draw_map(mapa):
             elif cell == 3:
                 screen.blit(imagen_3, (x * CELL_SIZE, y * CELL_SIZE))
 
+def colocar(mapa):
+    pos_x = random.randrange(0,9)
+    pos_y = random.randrange(0,9)
+
+    ancho_collec, alto_collect = CELL_SIZE // 1.5, CELL_SIZE // 1.5
+    for y, row in enumerate(mapa):
+        for x, cell in enumerate(row):
+            # Calcular la posición del personaje en la casilla actual
+            collec_pos_x = pos_x * CELL_SIZE + (CELL_SIZE - ancho_collec) 
+            collec_pos_y = pos_y * CELL_SIZE + (CELL_SIZE - alto_collect)
+            screen.blit(coleccionables[x], ( collec_pos_x, collec_pos_y))
+
 # Función principal del juego
 def main():
     clock = pygame.time.Clock()  # Crear un objeto para ayudar a controlar el tiempo
-    frame_rate = 10  # Velocidad de cambio de frames por segundo
-    frame_count = 0  # Contador para controlar el cambio de frames
+    frames_per_second = 10  # Velocidad de cambio de frames por segundo
+    time_elapsed = 0
     frame = 0
 
-    global pos_personaje_x, pos_personaje_y, direccion, old_pos_personaje_x, old_pos_personaje_y  # Para modificar las variables globales
+    global pos_personaje_x, pos_personaje_y, direccion # Para modificar las variables globales
 
     running = True
     while running:
@@ -66,19 +79,19 @@ def main():
                 running = False
             elif event.type == pygame.KEYDOWN:  # Manejar eventos de teclado
                 if event.key == pygame.K_UP:
-                    if pos_personaje_y > 0: #and mapaJuego[pos_personaje_y - 1][pos_personaje_x] == 0:
+                    if pos_personaje_y > 0: 
                         pos_personaje_y -= 1
                         direccion = "arriba"
                 elif event.key == pygame.K_DOWN:
-                    if pos_personaje_y < len(mapaJuego) - 1: #and mapaJuego[pos_personaje_y + 1][pos_personaje_x] == 0:
+                    if pos_personaje_y < len(mapaJuego) - 1: 
                         pos_personaje_y += 1
                         direccion = "abajo"
                 elif event.key == pygame.K_LEFT:
-                    if pos_personaje_x > 0: #and mapaJuego[pos_personaje_y][pos_personaje_x - 1] == 0:
+                    if pos_personaje_x > 0: 
                         pos_personaje_x -= 1
                         direccion = "izquierda"
                 elif event.key == pygame.K_RIGHT:
-                    if pos_personaje_x < len(mapaJuego[0]) - 1: #and mapaJuego[pos_personaje_y][pos_personaje_x + 1] == 0:
+                    if pos_personaje_x < len(mapaJuego[0]) - 1: 
                         pos_personaje_x += 1
                         direccion = "derecha"
 
@@ -86,13 +99,20 @@ def main():
         screen.fill(WHITE)
         draw_map(mapaJuego)
 
-        personaje_ancho, personaje_alto = CELL_SIZE // 2, CELL_SIZE // 2 
+        personaje_ancho, personaje_alto = CELL_SIZE // 1.5, CELL_SIZE // 1.5 
 
         # Calcular la posición del personaje en la casilla actual
-        personaje_pos_x = pos_personaje_x * CELL_SIZE + (CELL_SIZE - personaje_ancho) // 2 
-        personaje_pos_y = pos_personaje_y * CELL_SIZE + (CELL_SIZE - personaje_alto) // 2
+        personaje_pos_x = pos_personaje_x * CELL_SIZE + (CELL_SIZE - personaje_ancho) // 1.5 
+        personaje_pos_y = pos_personaje_y * CELL_SIZE + (CELL_SIZE - personaje_alto) // 1.5
+
+        time_elapsed += 1
+        if time_elapsed >= frames_per_second:
+            time_elapsed = 0
+            frame = (frame + 1) % 2  # This line switches the frame between 0 and 1
 
         screen.blit(personajes[direccion][frame], (personaje_pos_x, personaje_pos_y))
+
+        colocar(mapaJuego)
 
         pygame.display.update()
 

@@ -28,4 +28,6 @@ personajes = {
     "derecha": personaje_derecha
 }
 
-personajes = {direccion: [pygame.transform.scale(img, (CELL_SIZE/2, CELL_SIZE/2)) for img in sprites] for direccion, sprites in personajes.items()}
+personajes = {direccion: [pygame.transform.scale(img, (CELL_SIZE/1.5, CELL_SIZE/1.5)) for img in sprites] for direccion, sprites in personajes.items()}
+
+coleccionables = [pygame.image.load(f'coleccionables/cc{i}.png') for i in range(10)]
