@@ -29,6 +29,7 @@ mapaJuego = [
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 ]
 
+
 # Posición inicial del personaje
 pos_personaje_x, pos_personaje_y = 0, 0
 
@@ -37,6 +38,25 @@ direccion = "abajo"
 
 # Almacenar la posición anterior del personaje
 old_pos_personaje_x, old_pos_personaje_y = pos_personaje_x, pos_personaje_y
+
+# Fuera de la función colocar(), define un arreglo para las posiciones de los coleccionables
+posiciones_coleccionables = []
+
+# Llena el arreglo con posiciones aleatorias
+for _ in range(10):  # Suponiendo que tienes 10 coleccionables
+    pos_x = random.randrange(1, 9)
+    pos_y = random.randrange(1, 9)
+    posiciones_coleccionables.append((pos_x, pos_y))
+
+def colocar(posiciones):
+    ancho_collec, alto_collect = CELL_SIZE // 1.5, CELL_SIZE // 1.5   
+
+    for i, (pos_x, pos_y) in enumerate(posiciones):
+        # Calcular la posición del coleccionable en la casilla actual
+        collec_pos_x = pos_x * CELL_SIZE + (CELL_SIZE - ancho_collec) 
+        collec_pos_y = pos_y * CELL_SIZE + (CELL_SIZE - alto_collect)
+        screen.blit(coleccionables[i], (collec_pos_x, collec_pos_y))        
+
 
 # Función para dibujar el mapa del juego
 def draw_map(mapa):
@@ -51,24 +71,13 @@ def draw_map(mapa):
             elif cell == 3:
                 screen.blit(imagen_3, (x * CELL_SIZE, y * CELL_SIZE))
 
-def colocar(mapa):
-    pos_x = random.randrange(0,9)
-    pos_y = random.randrange(0,9)
-
-    ancho_collec, alto_collect = CELL_SIZE // 1.5, CELL_SIZE // 1.5
-    for y, row in enumerate(mapa):
-        for x, cell in enumerate(row):
-            # Calcular la posición del personaje en la casilla actual
-            collec_pos_x = pos_x * CELL_SIZE + (CELL_SIZE - ancho_collec) 
-            collec_pos_y = pos_y * CELL_SIZE + (CELL_SIZE - alto_collect)
-            screen.blit(coleccionables[x], ( collec_pos_x, collec_pos_y))
 
 # Función principal del juego
 def main():
     clock = pygame.time.Clock()  # Crear un objeto para ayudar a controlar el tiempo
     frames_per_second = 10  # Velocidad de cambio de frames por segundo
     time_elapsed = 0
-    frame = 0
+    frame = 0    
 
     global pos_personaje_x, pos_personaje_y, direccion # Para modificar las variables globales
 
@@ -98,6 +107,7 @@ def main():
         # Dibujar el mapa del juego
         screen.fill(WHITE)
         draw_map(mapaJuego)
+        colocar(posiciones_coleccionables)
 
         personaje_ancho, personaje_alto = CELL_SIZE // 1.5, CELL_SIZE // 1.5 
 
@@ -112,11 +122,10 @@ def main():
 
         screen.blit(personajes[direccion][frame], (personaje_pos_x, personaje_pos_y))
 
-        colocar(mapaJuego)
-
         pygame.display.update()
 
     pygame.quit()
 
 if __name__ == "__main__":
     main()
+    
