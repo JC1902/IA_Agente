@@ -11,17 +11,17 @@ pygame.init()
 WIDTH, HEIGHT = 800, 850
 
 # Colores
-WHITE = (255, 255, 255)
-BLACK = (0, 0, 0)
-FONDO = ( 200, 200, 200)
+WHITE = ( 255, 255, 255 )
+BLACK = ( 0, 0, 0 )
+FONDO = ( 200, 200, 200 )
 
 # Crear la ventana del juego
-screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Agente Inteligente - IA U1")
+screen = pygame.display.set_mode( ( WIDTH, HEIGHT ) )
+pygame.display.set_caption( "Agente Inteligente - IA U1" )
 
 #interfaz
 interfaz = Interfaz()
-btn_start = Button(screen , 650, 800, 'Comenzar', 100 , 40)
+btn_start = Button( screen , 650, 800, 'Comenzar', 100 , 40 )
 
 
 # Matriz del juego
@@ -52,19 +52,39 @@ old_pos_personaje_x, old_pos_personaje_y = pos_personaje_x, pos_personaje_y
 posiciones_coleccionables = []
 
 # Llena el arreglo con posiciones aleatorias
-for _ in range(10):  # Suponiendo que tienes 10 coleccionables
-    pos_x = random.randrange(1, 9)
-    pos_y = random.randrange(1, 9)
-    posiciones_coleccionables.append((pos_x, pos_y))
+for _ in range( 10 ):  # Para 10 coleccionables
+    pos_x = random.randrange( 1, 9 )
+    pos_y = random.randrange( 1, 9 )
+    posiciones_coleccionables.append( ( pos_x, pos_y ) )
 
-def colocar(posiciones):
+"""def colocar(posiciones):
     ancho_collec, alto_collect = CELL_SIZE // 1.5, CELL_SIZE // 1.5   
 
     for i, (pos_x, pos_y) in enumerate(posiciones):
         # Calcular la posición del coleccionable en la casilla actual
         collec_pos_x = pos_x * CELL_SIZE + (CELL_SIZE - ancho_collec) 
         collec_pos_y = pos_y * CELL_SIZE + (CELL_SIZE - alto_collect)
-        screen.blit(coleccionables[i], (collec_pos_x, collec_pos_y))        
+        screen.blit(coleccionables[i], (collec_pos_x, collec_pos_y))"""
+
+def colocar(posiciones):
+    ancho_collec, alto_collect = CELL_SIZE // 1.5, CELL_SIZE // 1.5
+
+    i = 0
+    while i < len(posiciones):
+
+        pos_x, pos_y = posiciones_coleccionables[i]
+
+        # Verificar si la posición aleatoria coincide con la posición de las bayas o si el valor de la posición en la matriz es 3
+        if (pos_x, pos_y) != (4, 8) and mapaJuego[pos_y][pos_x] != 3:
+            # Calcular la posición del coleccionable en la casilla actual
+            collec_pos_x = pos_x * CELL_SIZE + (CELL_SIZE - ancho_collec) 
+            collec_pos_y = pos_y * CELL_SIZE + (CELL_SIZE - alto_collect)
+            screen.blit(coleccionables[i], (collec_pos_x, collec_pos_y))
+            i += 1
+        else:
+            pos_x = random.randrange( 1, 9 )
+            pos_y = random.randrange( 1, 9 )
+
 
 # Define el índice del frame actual de la animación de la imagen_3
 frame_index_imagen_3, frame_index_bayas = 0,0
