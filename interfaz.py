@@ -7,7 +7,7 @@ from assets import img_medidor ,img_vidas
 WIDTH, HEIGHT = 800, 850
 CELL_SIZE = 80
 VIDAS_MAX = 3
-BATERIA_MAX = 15
+BATERIA_MAX = 20
  
 # Colores
 WHITE = (255, 255, 255)
@@ -76,10 +76,7 @@ class Button:
             # Si presionamos mientras estamoas sobre el botón
             if pygame.mouse.get_pressed()[0]:
                 self.pressed = True
-            else:
-                # Si dejamos de presionar mientras estamos sobre el botón
-                if self.pressed is True:
-                    self.pressed = False
+           
                   
         else:
             self.pressed = False
