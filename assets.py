@@ -35,3 +35,18 @@ personajes = {
 personajes = {direccion: [pygame.transform.scale(img, (CELL_SIZE/1.5, CELL_SIZE/1.5)) for img in sprites] for direccion, sprites in personajes.items()}
 
 coleccionables = [pygame.image.load(f'coleccionables/cc{i}.png') for i in range(10)]
+
+
+
+img_vidas = [pygame.image.load(f'interfaz/vida_{i}.png') for i in range(2)]
+
+img_medidor = [
+    pygame.transform.rotate(
+        pygame.transform.scale(
+            pygame.image.load(f'interfaz/medidor/bateria_{i}.png'),
+            (int(CELL_SIZE / 3 * 2), CELL_SIZE * 2)
+        ),
+        90  
+    )
+    for i in range(16)
+]

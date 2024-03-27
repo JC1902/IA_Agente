@@ -1,19 +1,32 @@
 import pygame
 from assets import *
 import random
+from interfaz import Interfaz ,BATERIA_MAX , VIDAS_MAX , Button
+
 
 # Inicialización de Pygame
 pygame.init()
 
 # Dimensiones de la pantalla
-WIDTH, HEIGHT = 800, 800
+WIDTH, HEIGHT = 800, 850
+
+#Constantes
+
+
 
 # Colores
 WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+FONDO = ( 200, 200, 200)
 
 # Crear la ventana del juego
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Agente Inteligente - IA U1")
+
+#interfaz
+interfaz = Interfaz()
+btn_start = Button(screen , 650, 800, 'Comenzar', 100 , 40)
+
 
 # Matriz del juego
 mapaJuego = [
@@ -90,14 +103,26 @@ def main():
     time_elapsed = 0
     frame = 0    
 
-    global pos_personaje_x, pos_personaje_y, direccion # Para modificar las variables globales
-
+    global pos_personaje_x, pos_personaje_y, direccion , vidas , costo , buscando   # Para modificar las variables globales
+    
+    buscando = False
+    vidas = VIDAS_MAX
+    costo = 0
+    
+    
     running = True
+
+   
+       
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-            elif event.type == pygame.KEYDOWN:  # Manejar eventos de teclado
+            
+            
+
+            if event.type == pygame.KEYDOWN:  # Manejar eventos de teclado
+                costo +=  1  if costo < BATERIA_MAX else 0
                 if event.key == pygame.K_UP:
                     if pos_personaje_y > 0: 
                         pos_personaje_y -= 1
@@ -115,12 +140,38 @@ def main():
                         pos_personaje_x += 1
                         direccion = "derecha"
 
+           
+            #Estacion de recarga vida y energia en 1 , 1
+            elif pos_personaje_x == 1 and pos_personaje_y == 1 :
+                vidas = VIDAS_MAX
+                costo = 0
+
+            elif mapaJuego[ pos_personaje_y ] [pos_personaje_x ] == 3  :
+                vidas = vidas -1  if vidas > 0 else 0
+            
+           
+            
+
+               
+
+            
+
         # Dibujar el mapa del juego
-        screen.fill(WHITE)
+        screen.fill(FONDO)
         draw_map(mapaJuego)
         colocar(posiciones_coleccionables)
-
         personaje_ancho, personaje_alto = CELL_SIZE // 1.5, CELL_SIZE // 1.5 
+
+        #Boton y  evento 
+        btn_start.update()
+
+        if btn_start.pressed :
+            interfaz.dibujar_texto( screen , "Buscando ... " , WIDTH / 2 - 80 , 10 )
+
+        if costo == BATERIA_MAX :
+            btn_start.pressed = False
+
+       
 
         # Calcular la posición del personaje en la casilla actual
         personaje_pos_x = pos_personaje_x * CELL_SIZE + (CELL_SIZE - personaje_ancho) // 1.5 
@@ -138,6 +189,10 @@ def main():
 
         screen.blit( personajes[ direccion ][ frame ], ( personaje_pos_x, personaje_pos_y ) )
         screen.blit( bayas[frame_index_bayas], (bayas_pos_x, bayas_pos_y) )
+        screen.blit(personajes[direccion][frame], (personaje_pos_x, personaje_pos_y))
+        interfaz.dibujar_interface( screen , costo , vidas  )
+       
+        
 
         pygame.display.update()
 
