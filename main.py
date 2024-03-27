@@ -18,11 +18,11 @@ pygame.display.set_caption("Agente Inteligente - IA U1")
 # Matriz del juego
 mapaJuego = [
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [1, 0, 0, 3, 2, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 3, 0, 0, 0, 0, 1],
     [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
     [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 3, 0, 0, 0, 0, 0, 0, 0, 1],
     [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
     [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
     [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
@@ -31,7 +31,7 @@ mapaJuego = [
 
 
 # Posición inicial del personaje
-pos_personaje_x, pos_personaje_y = 0, 0
+pos_personaje_x, pos_personaje_y = 1, 1
 
 # Dirección inicial del personaje
 direccion = "abajo"
@@ -57,6 +57,17 @@ def colocar(posiciones):
         collec_pos_y = pos_y * CELL_SIZE + (CELL_SIZE - alto_collect)
         screen.blit(coleccionables[i], (collec_pos_x, collec_pos_y))        
 
+# Define el índice del frame actual de la animación de la imagen_3
+frame_index_imagen_3, frame_index_bayas = 0,0
+
+# Función para animar la imagen_3
+def animate_imagen_3():
+    global frame_index_imagen_3
+    frame_index_imagen_3 = (frame_index_imagen_3 + 1) % len(snorlax_tierra)
+
+def animate_bayas():
+    global frame_index_bayas
+    frame_index_bayas = ( frame_index_bayas + 1 ) % len(bayas)
 
 # Función para dibujar el mapa del juego
 def draw_map(mapa):
@@ -65,11 +76,11 @@ def draw_map(mapa):
             if cell == 0:
                 screen.blit(imagen_0, (x * CELL_SIZE, y * CELL_SIZE))
             elif cell == 1:
-                screen.blit(imagen_1, (x * CELL_SIZE, y * CELL_SIZE))
+                screen.blit(imagen_2, (x * CELL_SIZE, y * CELL_SIZE))
             elif cell == 2:
                 screen.blit(imagen_2, (x * CELL_SIZE, y * CELL_SIZE))
             elif cell == 3:
-                screen.blit(imagen_3, (x * CELL_SIZE, y * CELL_SIZE))
+                screen.blit(snorlax_tierra[frame_index_imagen_3], (x * CELL_SIZE, y * CELL_SIZE))
 
 
 # Función principal del juego
@@ -115,12 +126,18 @@ def main():
         personaje_pos_x = pos_personaje_x * CELL_SIZE + (CELL_SIZE - personaje_ancho) // 1.5 
         personaje_pos_y = pos_personaje_y * CELL_SIZE + (CELL_SIZE - personaje_alto) // 1.5
 
+        bayas_pos_x = 4 * CELL_SIZE
+        bayas_pos_y = 8 * CELL_SIZE
+
         time_elapsed += 1
         if time_elapsed >= frames_per_second:
             time_elapsed = 0
             frame = (frame + 1) % 2  # This line switches the frame between 0 and 1
+            animate_imagen_3()
+            animate_bayas()
 
-        screen.blit(personajes[direccion][frame], (personaje_pos_x, personaje_pos_y))
+        screen.blit( personajes[ direccion ][ frame ], ( personaje_pos_x, personaje_pos_y ) )
+        screen.blit( bayas[frame_index_bayas], (bayas_pos_x, bayas_pos_y) )
 
         pygame.display.update()
 
