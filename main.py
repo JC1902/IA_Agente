@@ -186,20 +186,16 @@ def main():
     time_elapsed = 0
     frame = 0    
 
-    global pos_personaje_x, pos_personaje_y, direccion , vidas , costo , buscando   # Para modificar las variables globales
+    global pos_personaje_x, pos_personaje_y, direccion , vidas , costo    # Para modificar las variables globales
     
-    buscando = False
     vidas = VIDAS_MAX
-    costo = 0
-    
+    costo = 0  
     running = True
        
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-            
-            
 
             if event.type == pygame.KEYDOWN:  # Manejar eventos de teclado
                 costo +=  1  if costo < BATERIA_MAX else 0
@@ -222,20 +218,13 @@ def main():
 
            
             #Estacion de recarga vida y energia en 1 , 1
-            elif pos_personaje_x == 1 and pos_personaje_y == 1 :
+            elif pos_personaje_x == 4 and pos_personaje_y == 8 :
                 vidas = VIDAS_MAX
                 costo = 0
 
             elif mapaJuego[ pos_personaje_y ] [pos_personaje_x ] == 3  :
                 vidas = vidas -1  if vidas > 0 else 0
             
-           
-            
-
-               
-
-            
-
         # Dibujar el mapa del juego
         screen.fill(FONDO)
         draw_map(mapaJuego)
