@@ -268,7 +268,7 @@ def main():
         if btn_start.pressed :
             interfaz.dibujar_texto( screen , "Buscando ... " , WIDTH / 2 - 80 , 10 )
 
-        if costo == BATERIA_MAX :
+        if costo == BATERIA_MAX  or not posiciones_coleccionables or vidas == 0:
             btn_start.pressed = False
    
 
