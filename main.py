@@ -19,9 +19,10 @@ FONDO = ( 200, 200, 200 )
 screen = pygame.display.set_mode( ( WIDTH, HEIGHT ) )
 pygame.display.set_caption( "Agente Inteligente - IA U1" )
 
-#interfaz
+#------ Crecion de objetos ----
+# interfaz
 interfaz = Interfaz()
-btn_start = Button( screen , 650, 800, 'Comenzar', 100 , 40 )
+btn_start = Button( screen , 650, 800, 'Buscar', 100 , 40 )
 
 
 # Matriz del juego
@@ -179,6 +180,29 @@ def draw_map(mapa):
                 screen.blit(snorlax_tierra[frame_index_imagen_3], (x * CELL_SIZE, y * CELL_SIZE))
 
 
+
+
+# Elimina el colecionable si esta en la posicion del pj
+def recolectar_coleccionables(x , y):
+    posicion_pj = ( x , y )
+    for posicion in posiciones_coleccionables :
+        if  posicion_pj == posicion :
+            posiciones_coleccionables.remove(posicion)
+
+# Comprueba colicion con enemigo
+def contacto_enemigo(x , y):
+    pos_enemigos = posiciones_muk + posiciones_voltorb
+    posicion_pj = ( x , y )
+    i = 10
+    for posicion in pos_enemigos :
+        interfaz.dibujar_texto(screen, str(posicion), 0, i)
+        if posicion == posicion_pj :
+            return True
+        i = i + 20
+    return False    
+        
+
+
 # Función principal del juego
 def main():
     clock = pygame.time.Clock()  # Crear un objeto para ayudar a controlar el tiempo
@@ -188,7 +212,7 @@ def main():
 
     global pos_personaje_x, pos_personaje_y, direccion , vidas , costo    # Para modificar las variables globales
     
-    vidas = VIDAS_MAX
+    vidas = VIDAS_MAX # Para cambiar la vida y bateria maxima ir a interfaz.py
     costo = 0  
     running = True
        
@@ -217,22 +241,28 @@ def main():
                         direccion = "derecha"
 
            
-            #Estacion de recarga vida y energia en 1 , 1
+            # Recarga si esta en la estacion // ESTATICA //
             elif pos_personaje_x == 4 and pos_personaje_y == 8 :
                 vidas = VIDAS_MAX
                 costo = 0
 
-            elif mapaJuego[ pos_personaje_y ] [pos_personaje_x ] == 3  :
+            # Quita una vida si choca con enemigos    
+            elif contacto_enemigo( pos_personaje_x , pos_personaje_y ) :
                 vidas = vidas -1  if vidas > 0 else 0
             
+        
+
         # Dibujar el mapa del juego
         screen.fill(FONDO)
         draw_map(mapaJuego)
         colocar(posiciones_coleccionables)
 
+       
+        recolectar_coleccionables ( pos_personaje_x, pos_personaje_y)
+
         personaje_ancho, personaje_alto = CELL_SIZE // 1.5, CELL_SIZE // 1.5 
 
-        #Boton y  evento 
+        # Actualiza el estado del boton
         btn_start.update()
 
         if btn_start.pressed :
@@ -240,8 +270,7 @@ def main():
 
         if costo == BATERIA_MAX :
             btn_start.pressed = False
-
-       
+   
 
         # Calcular la posición del personaje en la casilla actual
         personaje_pos_x = pos_personaje_x * CELL_SIZE + (CELL_SIZE - personaje_ancho) // 1.5 
