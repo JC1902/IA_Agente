@@ -56,7 +56,14 @@ coleccionables = [pygame.image.load(f'coleccionables/cc{i}.png') for i in range(
 
 
 # Cargar la imagen para las vidas
-img_vidas = [pygame.image.load(f'interfaz/vida_{i}.png') for i in range(2)]
+img_vidas =  [ 
+    pygame.transform.scale(
+        pygame.image.load(f'interfaz/vida_{i}.png'),
+        ( 45  , 45 )
+    ) for i in range(2)
+ ]
+
+#[pygame.image.load(f'interfaz/vida_{i}.png') for i in range(2)]
 
 # Cargar y acomodar el medidor de la bateria
 img_medidor = [

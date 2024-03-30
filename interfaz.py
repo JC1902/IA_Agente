@@ -30,16 +30,16 @@ class Interfaz:
     def dibujar_vidas(self, screen , num_vidas):
         for i in range(VIDAS_MAX):
             if i < num_vidas:
-                screen.blit( img_vidas[0], (i * 30 + 10, 815))
+                screen.blit( img_vidas[0], (i * 45 + 10, 800))
             else:
-                screen.blit( img_vidas[1], (i * 30 + 10, 815))
+                screen.blit( img_vidas[1], (i * 45 + 10, 800))
 
     def dibujar_bateria( self, screen , costo):
         
         num =  int ( (costo * 15) / BATERIA_MAX )
-        screen.blit( img_medidor[num], (VIDAS_MAX * 30 + 20, 800))
+        screen.blit( img_medidor[num], (VIDAS_MAX * 45 + 20, 800))
         
-        self.dibujar_texto( screen , 'Pasos : ' + str(costo ) + ' / ' + str(BATERIA_MAX) , VIDAS_MAX * 30 + 20 + 160 + 20 , 815  )
+        self.dibujar_texto( screen , 'Pasos : ' + str(costo ) + ' / ' + str(BATERIA_MAX) , VIDAS_MAX * 45 + 20 + 160 + 20 , 815  )
         
 
     def dibujar_texto ( self, screen , texto , posx ,posy ):
