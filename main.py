@@ -1,6 +1,9 @@
 import pygame
+import algoritoAEstrella
 from assets import *
 import random
+import time
+import threading
 from interfaz import Interfaz ,BATERIA_MAX , VIDAS_MAX , Button
 
 
@@ -40,8 +43,10 @@ mapaJuego = [
 ]
 
 # Posiciones posible para el personaje
-posiciones_personaje = [(1,1), (1,8), (8,1), (8,8)]
+# posiciones_personaje = [(1,1), (1,8), (8,1), (8,8)]
+posiciones_personaje = [(1,8)]
 pos_personaje_x, pos_personaje_y = random.choice(posiciones_personaje)
+pos_personaje__final = algoritoAEstrella.Nodo(pos_personaje_x,pos_personaje_y)
 
 # Dirección inicial del personaje
 if (pos_personaje_x, pos_personaje_y) == (1,1) or (pos_personaje_x, pos_personaje_y) == (8,1):
@@ -201,16 +206,85 @@ def contacto_enemigo(x , y):
         i = i + 20
     return False    
         
-
-
+def mover_personaje(camino_final,pos_personaje_x,pos_personaje_y):
+    for nodo in camino_final:
+        posicion_nodo_x, posicion_nodo_y = nodo
+        dif_posicion_x= posicion_nodo_x-pos_personaje_x
+        dif_posicion_y= posicion_nodo_y-pos_personaje_y
+        # recolectar_coleccionables(pos_personaje_x,pos_personaje_y)
+        if(dif_posicion_x >= 0 and dif_posicion_y>=0):
+            for i in range(dif_posicion_x):
+                pos_personaje_x+=1
+                mover_personaje_derecha()
+                
+            for j in range(dif_posicion_y):
+                pos_personaje_y+=1
+                mover_personaje_abajo()
+            # thread_derecha= threading.Thread(target=mover_personaje_derecha)
+            # thread_derecha.start()
+           
+            # thread_derecha.join()
+        if (dif_posicion_x<0 and dif_posicion_y<0):
+            for i in range(dif_posicion_x*-1):
+                pos_personaje_x-=1
+                mover_personaje_izquierda()
+                
+            for j in range(dif_posicion_y*-1):
+                pos_personaje_y-=1
+                mover_personaje_arriba()
+            # thread_izq=threading.Thread(target=mover_personaje_izquierda)
+            # thread_izq.start()
+            # thread_izq.join()
+        if(dif_posicion_x<0 and dif_posicion_y>=0):
+            for i in range(dif_posicion_x*-1):
+                pos_personaje_x-=1
+                mover_personaje_izquierda()
+            for j in range(dif_posicion_y):
+                pos_personaje_y+=1
+                mover_personaje_abajo()
+            # thread_abajo=threading.Thread(target=mover_personaje_abajo)
+            # thread_abajo.start()
+            # thread_abajo.join()
+        if(dif_posicion_x>=0 and dif_posicion_y<0):
+            for i in range(dif_posicion_x):
+                pos_personaje_x+=1
+                mover_personaje_derecha()
+            for j in range(dif_posicion_y*-1):
+                pos_personaje_y-=1
+                mover_personaje_arriba()
+            # thread_arriba=threading.Thread(target=mover_personaje_arriba)
+            # thread_arriba.start()
+            # thread_arriba.join()
+        
+def mover_personaje_derecha():
+    right_event = pygame.event.Event(pygame.KEYDOWN, {'key': pygame.K_RIGHT})
+    pygame.event.post(right_event)
+    
+    direccion = "derecha"
+    
+def mover_personaje_izquierda():
+    left_event = pygame.event.Event(pygame.KEYDOWN, {'key': pygame.K_LEFT})
+    pygame.event.post(left_event)
+    
+    direccion = "izquierda"
+def mover_personaje_arriba():
+    up_event = pygame.event.Event(pygame.KEYDOWN, {'key': pygame.K_UP})
+    pygame.event.post(up_event)
+   
+    direccion = "arriba"
+def mover_personaje_abajo():
+    down_event = pygame.event.Event(pygame.KEYDOWN, {'key': pygame.K_DOWN})
+    pygame.event.post(down_event)
+    
+    direccion = "abajo"
 # Función principal del juego
 def main():
     clock = pygame.time.Clock()  # Crear un objeto para ayudar a controlar el tiempo
-    frames_per_second = 10  # Velocidad de cambio de frames por segundo
+    frames_per_second = 20  # Velocidad de cambio de frames por segundo
     time_elapsed = 0
     frame = 0    
 
-    global pos_personaje_x, pos_personaje_y, direccion , vidas , costo    # Para modificar las variables globales
+    global pos_personaje_x, pos_personaje_y, direccion , vidas , costo, ruta_optima    # Para modificar las variables globales
     
     vidas = VIDAS_MAX # Para cambiar la vida y bateria maxima ir a interfaz.py
     costo = 0  
@@ -226,18 +300,22 @@ def main():
                 if event.key == pygame.K_UP:
                     if pos_personaje_y > 0 and mapaJuego[pos_personaje_y - 1][pos_personaje_x] == 0: 
                         pos_personaje_y -= 1
+                        # time.sleep(0.125)
                         direccion = "arriba"
                 elif event.key == pygame.K_DOWN:
                     if pos_personaje_y < len(mapaJuego) - 1 and mapaJuego[pos_personaje_y + 1][pos_personaje_x] == 0: 
                         pos_personaje_y += 1
+                        # time.sleep(0.125)
                         direccion = "abajo"
                 elif event.key == pygame.K_LEFT:
                     if pos_personaje_x > 0 and mapaJuego[pos_personaje_y][pos_personaje_x - 1] == 0: 
                         pos_personaje_x -= 1
+                        # time.sleep(0.125)
                         direccion = "izquierda"
                 elif event.key == pygame.K_RIGHT:
                     if pos_personaje_x < len(mapaJuego[0]) - 1 and mapaJuego[pos_personaje_y][pos_personaje_x + 1] == 0: 
                         pos_personaje_x += 1
+                        # time.sleep(0.125)
                         direccion = "derecha"
 
            
@@ -266,8 +344,21 @@ def main():
         btn_start.update()
 
         if btn_start.pressed :
+            print("Lista coleccionables:",posiciones_coleccionables )
+            print("Posicion jugador: ", pos_personaje__final.x, pos_personaje__final.y)
+            ruta_optima = algoritoAEstrella.a_estrella(mapaJuego,pos_personaje__final,posiciones_coleccionables)
+            if ruta_optima:
+                print("Ruta óptima encontrada Final:", ruta_optima)
+                
+            else:
+                print("No se encontró una ruta válida.")
+            mover_personaje(ruta_optima,pos_personaje_x,pos_personaje_y)
+            
+            # mover_personaje(ruta_optima)
+           
             interfaz.dibujar_texto( screen , "Buscando ... " , WIDTH / 2 - 80 , 10 )
-
+            btn_start.pressed = False
+            
         if costo == BATERIA_MAX  or not posiciones_coleccionables or vidas == 0:
             btn_start.pressed = False
    
@@ -301,6 +392,7 @@ def main():
         
 
         pygame.display.update()
+        # clock.tick(15)
 
     pygame.quit()
 
