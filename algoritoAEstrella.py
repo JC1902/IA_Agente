@@ -42,6 +42,8 @@ def a_estrella(grid, inicio, metas):
         # if not metas_por_alcanzar:
         #     camino_completado=True
         #     return devolver_camino(cola_cerrada)
+        if(nodo_actual is None):
+            break
         if (nodo_actual.x, nodo_actual.y) in metas_por_alcanzar:
             metas_por_alcanzar.remove((nodo_actual.x, nodo_actual.y))
             if not metas_por_alcanzar:
@@ -55,6 +57,11 @@ def a_estrella(grid, inicio, metas):
                 else:
                     nodo_esta_en_lista=False
             if(nodo_esta_en_lista==False):
+                if(metas):
+                    None
+                else:
+                    break
+                    # return "Se terminaron las metas"
                 nuevo_g = nodo_actual.g + 1  # Costo de movimiento uniforme
 
                 vecino.g = nuevo_g

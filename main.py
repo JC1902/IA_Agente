@@ -4,6 +4,7 @@ from assets import *
 import random
 import time
 import threading
+import math
 from interfaz import Interfaz ,BATERIA_MAX , VIDAS_MAX , Button
 
 
@@ -207,59 +208,56 @@ def contacto_enemigo(x , y):
     return False    
         
 def mover_personaje(camino_final,pos_personaje_x,pos_personaje_y):
+    
     for nodo in camino_final:
         posicion_nodo_x, posicion_nodo_y = nodo
         dif_posicion_x= posicion_nodo_x-pos_personaje_x
         dif_posicion_y= posicion_nodo_y-pos_personaje_y
         # recolectar_coleccionables(pos_personaje_x,pos_personaje_y)
+        
         if(dif_posicion_x >= 0 and dif_posicion_y>=0):
+            
             for i in range(dif_posicion_x):
                 pos_personaje_x+=1
-                mover_personaje_derecha()
+               
+                # mover_personaje_derecha()
                 
             for j in range(dif_posicion_y):
                 pos_personaje_y+=1
-                mover_personaje_abajo()
-            # thread_derecha= threading.Thread(target=mover_personaje_derecha)
-            # thread_derecha.start()
-           
+                # mover_personaje_abajo()
+                
+            
             # thread_derecha.join()
         if (dif_posicion_x<0 and dif_posicion_y<0):
             for i in range(dif_posicion_x*-1):
                 pos_personaje_x-=1
-                mover_personaje_izquierda()
+                # mover_personaje_izquierda()
+               
                 
             for j in range(dif_posicion_y*-1):
                 pos_personaje_y-=1
-                mover_personaje_arriba()
-            # thread_izq=threading.Thread(target=mover_personaje_izquierda)
-            # thread_izq.start()
-            # thread_izq.join()
+                # mover_personaje_arriba()
+                
         if(dif_posicion_x<0 and dif_posicion_y>=0):
             for i in range(dif_posicion_x*-1):
                 pos_personaje_x-=1
-                mover_personaje_izquierda()
+                
             for j in range(dif_posicion_y):
                 pos_personaje_y+=1
-                mover_personaje_abajo()
-            # thread_abajo=threading.Thread(target=mover_personaje_abajo)
-            # thread_abajo.start()
-            # thread_abajo.join()
+               
+            
         if(dif_posicion_x>=0 and dif_posicion_y<0):
             for i in range(dif_posicion_x):
                 pos_personaje_x+=1
-                mover_personaje_derecha()
+                
             for j in range(dif_posicion_y*-1):
                 pos_personaje_y-=1
-                mover_personaje_arriba()
-            # thread_arriba=threading.Thread(target=mover_personaje_arriba)
-            # thread_arriba.start()
-            # thread_arriba.join()
+                
         
 def mover_personaje_derecha():
     right_event = pygame.event.Event(pygame.KEYDOWN, {'key': pygame.K_RIGHT})
     pygame.event.post(right_event)
-    
+    pygame.event.poll()
     direccion = "derecha"
     
 def mover_personaje_izquierda():
@@ -277,6 +275,9 @@ def mover_personaje_abajo():
     pygame.event.post(down_event)
     
     direccion = "abajo"
+def distancia_entre_puntos(x1, y1, x2, y2):
+    distancia = math.sqrt((x2 - x1)**2 + (y2 - y1)**2)
+    return distancia
 # Función principal del juego
 def main():
     clock = pygame.time.Clock()  # Crear un objeto para ayudar a controlar el tiempo
@@ -352,9 +353,124 @@ def main():
                 
             else:
                 print("No se encontró una ruta válida.")
-            mover_personaje(ruta_optima,pos_personaje_x,pos_personaje_y)
-            
-            # mover_personaje(ruta_optima)
+            # mover_personaje(ruta_optima,pos_personaje_x,pos_personaje_y)
+            if (ruta_optima is not None):
+                for nodo in ruta_optima:
+                    distancia_entre_nodos= distancia_entre_puntos(4,8,pos_personaje_x,pos_personaje_y)
+                    dif_posicion_x_pila= 4 - pos_personaje_x
+                    dif_posicion_y_pila= 8-pos_personaje_y
+                    if(distancia_entre_nodos>19-costo):
+                        if(dif_posicion_x_pila>=0 and dif_posicion_y_pila>=0):
+                            for i in range(dif_posicion_x_pila):
+                                pos_personaje_x+=1
+                                costo +=  1
+                                # mover_personaje_derecha()
+                                direccion = "derecha"
+                            for j in range(dif_posicion_y_pila):
+                                pos_personaje_y+=1
+                                costo +=  1
+                                direccion = "abajo"
+                                # mover_personaje_abajo()
+                        if(dif_posicion_x_pila<0 and dif_posicion_y_pila<0):
+                            for i in range(dif_posicion_x_pila*-1):
+                                pos_personaje_x-=1
+                                costo +=  1
+                                direccion = "izquierda"
+                                # mover_personaje_izquierda()
+                            
+                                
+                            for j in range(dif_posicion_y_pila*-1):
+                                pos_personaje_y-=1
+                                costo +=  1
+                                direccion = "arriba"
+                                # mover_personaje_arriba()
+                            
+                        if(dif_posicion_x_pila<0 and dif_posicion_y_pila>=0):
+                            for i in range(dif_posicion_x_pila*-1):
+                                pos_personaje_x-=1
+                                costo +=  1
+                                direccion = "izquierda"
+                                # mover_personaje_izquierda()
+                            for j in range(dif_posicion_y_pila):
+                                pos_personaje_y+=1
+                                costo +=  1
+                                direccion = "abajo"
+                                # mover_personaje_abajo()
+                            
+                            
+                        if(dif_posicion_x_pila>=0 and dif_posicion_y_pila<0):
+                            for i in range(dif_posicion_x_pila):
+                                pos_personaje_x+=1
+                                costo +=  1
+                                # mover_personaje_derecha()
+                                direccion = "derecha"
+                            for j in range(dif_posicion_y_pila*-1):
+                                pos_personaje_y-=1
+                                costo +=  1
+                                direccion = "arriba"
+                                # mover_personaje_arriba()
+                        if(pos_personaje_x==4 and pos_personaje_y==8):
+                            costo=0
+                    else: 
+                        posicion_nodo_x, posicion_nodo_y = nodo
+                        dif_posicion_x= posicion_nodo_x-pos_personaje_x
+                        dif_posicion_y= posicion_nodo_y-pos_personaje_y
+                    
+                        # recolectar_coleccionables(pos_personaje_x,pos_personaje_y)
+                        
+                        if(dif_posicion_x >= 0 and dif_posicion_y>=0):
+                            
+                            for i in range(dif_posicion_x):
+                                pos_personaje_x+=1
+                                costo +=  1
+                                # mover_personaje_derecha()
+                                direccion = "derecha"
+                            for j in range(dif_posicion_y):
+                                pos_personaje_y+=1
+                                costo +=  1
+                                direccion = "abajo"
+                                # mover_personaje_abajo()
+                                
+                            
+                            # thread_derecha.join()
+                        if (dif_posicion_x<0 and dif_posicion_y<0):
+                            for i in range(dif_posicion_x*-1):
+                                pos_personaje_x-=1
+                                direccion = "izquierda"
+                                # mover_personaje_izquierda()
+                                costo +=  1
+                                
+                            for j in range(dif_posicion_y*-1):
+                                pos_personaje_y-=1
+                                costo +=  1
+                                direccion = "arriba"
+                                # mover_personaje_arriba()
+                                
+                        if(dif_posicion_x<0 and dif_posicion_y>=0):
+                            for i in range(dif_posicion_x*-1):
+                                pos_personaje_x-=1
+                                costo +=  1
+                                direccion = "izquierda"
+                                # mover_personaje_izquierda()
+                            for j in range(dif_posicion_y):
+                                pos_personaje_y+=1
+                                costo +=  1
+                                direccion = "abajo"
+                                # mover_personaje_abajo()
+                            
+                            
+                        if(dif_posicion_x>=0 and dif_posicion_y<0):
+                            for i in range(dif_posicion_x):
+                                pos_personaje_x+=1
+                                costo +=  1
+                                direccion = "derecha"
+                                # mover_personaje_derecha()
+                            for j in range(dif_posicion_y*-1):
+                                pos_personaje_y-=1
+                                costo +=  1
+                                direccion = "arriba"
+                                # mover_personaje_arriba()
+                                # mover_personaje(ruta_optima)
            
             interfaz.dibujar_texto( screen , "Buscando ... " , WIDTH / 2 - 80 , 10 )
             btn_start.pressed = False
