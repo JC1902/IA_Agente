@@ -356,6 +356,7 @@ def main():
             # mover_personaje(ruta_optima,pos_personaje_x,pos_personaje_y)
             if (ruta_optima is not None):
                 for nodo in ruta_optima:
+                    recolectar_coleccionables(pos_personaje_x,pos_personaje_y)
                     distancia_entre_nodos= distancia_entre_puntos(4,8,pos_personaje_x,pos_personaje_y)
                     dif_posicion_x_pila= 4 - pos_personaje_x
                     dif_posicion_y_pila= 8-pos_personaje_y
@@ -416,7 +417,7 @@ def main():
                         dif_posicion_x= posicion_nodo_x-pos_personaje_x
                         dif_posicion_y= posicion_nodo_y-pos_personaje_y
                     
-                        # recolectar_coleccionables(pos_personaje_x,pos_personaje_y)
+                        
                         
                         if(dif_posicion_x >= 0 and dif_posicion_y>=0):
                             
