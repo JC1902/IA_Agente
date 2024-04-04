@@ -27,6 +27,7 @@ pygame.display.set_caption( "Agente Inteligente - IA U1" )
 # interfaz
 interfaz = Interfaz()
 btn_start = Button( screen , 650, 800, 'Buscar', 100 , 40 )
+btn_reinicio = Button(screen, 500, 800, 'Reiniciar',100,40 )
 
 
 # Matriz del juego
@@ -44,8 +45,8 @@ mapaJuego = [
 ]
 
 # Posiciones posible para el personaje
-# posiciones_personaje = [(1,1), (1,8), (8,1), (8,8)]
-posiciones_personaje = [(1,8)]
+posiciones_personaje = [(1,1), (1,8), (8,1), (8,8)]
+# posiciones_personaje = [(1,8)]
 pos_personaje_x, pos_personaje_y = random.choice(posiciones_personaje)
 pos_personaje__final = algoritoAEstrella.Nodo(pos_personaje_x,pos_personaje_y)
 
@@ -278,14 +279,40 @@ def mover_personaje_abajo():
 def distancia_entre_puntos(x1, y1, x2, y2):
     distancia = math.sqrt((x2 - x1)**2 + (y2 - y1)**2)
     return distancia
-# Función principal del juego
+def reiniciar_juego():
+    frames_per_second = 20  # Velocidad de cambio de frames por segundo
+    time_elapsed = 0
+    frame = 0 
+    
+    posiciones_personaje = [(1,1), (1,8), (8,1), (8,8)]
+    posiciones_personaje = [(1,8)]
+    pos_personaje_x, pos_personaje_y = random.choice(posiciones_personaje)
+    pos_personaje__final = algoritoAEstrella.Nodo(pos_personaje_x,pos_personaje_y)
+    posiciones_coleccionables = [(random.randrange(1, 9), random.randrange(1, 9)) for _ in range(10)]
+    screen.fill(FONDO)
+    draw_map(mapaJuego)
+    colocar(posiciones_coleccionables)
+    colocar_enemigos( posiciones_muk, posiciones_coleccionables, frame_index_muk, muk )
+    colocar_enemigos( posiciones_voltorb, posiciones_coleccionables, frame_index_voltorb, voltorb )
+    personaje_ancho, personaje_alto = CELL_SIZE // 1.5, CELL_SIZE // 1.5 
+    personaje_pos_x = pos_personaje_x * CELL_SIZE + (CELL_SIZE - personaje_ancho) // 1.5 
+    personaje_pos_y = pos_personaje_y * CELL_SIZE + (CELL_SIZE - personaje_alto) // 1.5
+    
+    bayas_pos_x = 4 * CELL_SIZE
+    bayas_pos_y = 8 * CELL_SIZE
+    screen.blit( personajes[ direccion ][ frame ], ( personaje_pos_x, personaje_pos_y ) )
+    screen.blit( bayas[frame_index_bayas], (bayas_pos_x, bayas_pos_y) ) 
+    pygame.display.update()
+    
+    # interfaz.dibujar_interface( screen , costo , vidas  )
+    # Función principal del juego
 def main():
     clock = pygame.time.Clock()  # Crear un objeto para ayudar a controlar el tiempo
     frames_per_second = 20  # Velocidad de cambio de frames por segundo
     time_elapsed = 0
     frame = 0    
 
-    global pos_personaje_x, pos_personaje_y, direccion , vidas , costo, ruta_optima    # Para modificar las variables globales
+    global pos_personaje_x, pos_personaje_y, direccion , vidas , costo, ruta_optima, posiciones_coleccionables    # Para modificar las variables globales
     
     vidas = VIDAS_MAX # Para cambiar la vida y bateria maxima ir a interfaz.py
     costo = 0  
@@ -337,13 +364,15 @@ def main():
         colocar(posiciones_coleccionables)
 
        
-        recolectar_coleccionables ( pos_personaje_x, pos_personaje_y)
+        #recolectar_coleccionables ( pos_personaje_x, pos_personaje_y)
 
         personaje_ancho, personaje_alto = CELL_SIZE // 1.5, CELL_SIZE // 1.5 
 
         # Actualiza el estado del boton
         btn_start.update()
-
+        if(vidas == 0):
+            print("TE QUEDASTE SIN VIDAS!!")
+            break
         if btn_start.pressed :
             print("Lista coleccionables:",posiciones_coleccionables )
             print("Posicion jugador: ", pos_personaje__final.x, pos_personaje__final.y)
@@ -356,6 +385,9 @@ def main():
             # mover_personaje(ruta_optima,pos_personaje_x,pos_personaje_y)
             if (ruta_optima is not None):
                 for nodo in ruta_optima:
+                    if(vidas == 0):
+                        print("TE QUEDASTE SIN VIDAS!!")
+                        break
                     recolectar_coleccionables(pos_personaje_x,pos_personaje_y)
                     distancia_entre_nodos= distancia_entre_puntos(4,8,pos_personaje_x,pos_personaje_y)
                     dif_posicion_x_pila= 4 - pos_personaje_x
@@ -472,13 +504,15 @@ def main():
                                 direccion = "arriba"
                                 # mover_personaje_arriba()
                                 # mover_personaje(ruta_optima)
-           
+                btn_start.pressed=False
+                # btn_start.update()
+                
             interfaz.dibujar_texto( screen , "Buscando ... " , WIDTH / 2 - 80 , 10 )
             btn_start.pressed = False
             
         if costo == BATERIA_MAX  or not posiciones_coleccionables or vidas == 0:
             btn_start.pressed = False
-   
+
 
         # Calcular la posición del personaje en la casilla actual
         personaje_pos_x = pos_personaje_x * CELL_SIZE + (CELL_SIZE - personaje_ancho) // 1.5 
@@ -505,8 +539,22 @@ def main():
         screen.blit( bayas[frame_index_bayas], (bayas_pos_x, bayas_pos_y) )        
 
         interfaz.dibujar_interface( screen , costo , vidas  )
-       
-        
+        btn_reinicio.update()
+        # btn_reinicio.pressed= False
+        if btn_reinicio.pressed:
+            
+            btn_reinicio.pressed=False
+            btn_reinicio.update()
+            reiniciar_juego()
+            posiciones_personaje = [(1,1), (1,8), (8,1), (8,8)]
+            # posiciones_personaje = [(1,8)]
+            pos_personaje_x, pos_personaje_y = random.choice(posiciones_personaje)      
+            posiciones_coleccionables = [(random.randrange(1, 9), random.randrange(1, 9)) for _ in range(10)]
+            colocar(posiciones_coleccionables)
+            costo=0
+            vidas=VIDAS_MAX
+            # # pygame.display.update()
+            
 
         pygame.display.update()
         # clock.tick(15)
