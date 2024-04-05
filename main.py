@@ -46,7 +46,6 @@ mapaJuego = [
 
 # Posiciones posible para el personaje
 posiciones_personaje = [(1,1), (1,8), (8,1), (8,8)]
-# posiciones_personaje = [(1,8)]
 pos_personaje_x, pos_personaje_y = random.choice(posiciones_personaje)
 pos_personaje__final = algoritoAEstrella.Nodo(pos_personaje_x,pos_personaje_y)
 
@@ -73,7 +72,7 @@ def colocar(posiciones):
         # Verificar si la posición aleatoria coincide con la posición de las bayas o si el valor de la posición en la matriz es 3
         if (pos_x, pos_y) != (4, 8) and \
             mapaJuego[pos_y][pos_x] != 3 and \
-            (pos_x, pos_y) != (old_pos_personaje_x, old_pos_personaje_y) and \
+            (pos_x, pos_y) not in posiciones_personaje and \
             mapaJuego[pos_y][pos_x] != 2:
             # Calcular la posición del coleccionable en la casilla actual
             collec_pos_x = pos_x * CELL_SIZE + (CELL_SIZE - ancho_collec) 
@@ -141,15 +140,14 @@ def colocar_enemigos(posiciones_enemigos, posiciones_colectables, frame_enemigo,
     ancho_enemigo, alto_enemigo = 40 , 40
 
     if posiciones_enemigos == posiciones_muk:
-        posiciones_ocupadas = set(posiciones_colectables) | set(posiciones_voltorb)
+        posiciones_ocupadas = set(posiciones_colectables) | set(posiciones_voltorb) | set( posiciones_personaje )
     elif posiciones_enemigos == posiciones_voltorb:
-        posiciones_ocupadas = set(posiciones_colectables) | set(posiciones_muk)
+        posiciones_ocupadas = set(posiciones_colectables) | set(posiciones_muk) | set( posiciones_personaje )
 
     for i, (pos_x, pos_y) in enumerate(posiciones_enemigos):
         while (pos_x, pos_y) in posiciones_ocupadas or \
                 mapaJuego[pos_y][pos_x] in [2, 3] or \
-                (pos_x, pos_y) == (4, 8) or \
-                (pos_x, pos_y) == (old_pos_personaje_x, old_pos_personaje_y):
+                (pos_x, pos_y) == (4, 8):
             pos_x = random.randrange(1, 9)
             pos_y = random.randrange(1, 9)
         
@@ -282,11 +280,11 @@ def distancia_entre_puntos(x1, y1, x2, y2):
 def reiniciar_juego():
     frames_per_second = 20  # Velocidad de cambio de frames por segundo
     time_elapsed = 0
-    frame = 0 
+    frame = 0
     
     posiciones_personaje = [(1,1), (1,8), (8,1), (8,8)]
-    posiciones_personaje = [(1,8)]
     pos_personaje_x, pos_personaje_y = random.choice(posiciones_personaje)
+
     pos_personaje__final = algoritoAEstrella.Nodo(pos_personaje_x,pos_personaje_y)
     posiciones_coleccionables = [(random.randrange(1, 9), random.randrange(1, 9)) for _ in range(10)]
     screen.fill(FONDO)
@@ -306,6 +304,7 @@ def reiniciar_juego():
     
     # interfaz.dibujar_interface( screen , costo , vidas  )
     # Función principal del juego
+
 def main():
     clock = pygame.time.Clock()  # Crear un objeto para ayudar a controlar el tiempo
     frames_per_second = 20  # Velocidad de cambio de frames por segundo
@@ -373,7 +372,29 @@ def main():
         if(vidas == 0):
             print("TE QUEDASTE SIN VIDAS!!")
             break
+
+        # Calcular la posición del personaje en la casilla actual
+        personaje_pos_x = pos_personaje_x * CELL_SIZE + (CELL_SIZE - personaje_ancho) // 1.5 
+        personaje_pos_y = pos_personaje_y * CELL_SIZE + (CELL_SIZE - personaje_alto) // 1.5
+
+        bayas_pos_x = 4 * CELL_SIZE
+        bayas_pos_y = 8 * CELL_SIZE
+
+        time_elapsed += 1
+        if time_elapsed >= frames_per_second:
+            time_elapsed = 0
+            frame = (frame + 1) % 2  # This line switches the frame between 0 and 1
+            animate_imagen_3()
+            animate_bayas()
+            
+            animate_muk()
+            animate_voltorb()
+
+        colocar_enemigos( posiciones_muk, posiciones_coleccionables, frame_index_muk, muk )
+        colocar_enemigos( posiciones_voltorb, posiciones_coleccionables, frame_index_voltorb, voltorb )
+
         if btn_start.pressed :
+            interfaz.dibujar_texto( screen , "Buscando ... " , WIDTH / 2 - 80 , 10 )
             print("Lista coleccionables:",posiciones_coleccionables )
             print("Posicion jugador: ", pos_personaje__final.x, pos_personaje__final.y)
             ruta_optima = algoritoAEstrella.a_estrella(mapaJuego,pos_personaje__final,posiciones_coleccionables)
@@ -399,49 +420,76 @@ def main():
                                 costo +=  1
                                 # mover_personaje_derecha()
                                 direccion = "derecha"
+                                personaje_pos_x = pos_personaje_x * CELL_SIZE + (CELL_SIZE - personaje_ancho) // 1.5
+                                screen.blit( personajes[ direccion ][ frame ], ( personaje_pos_x, personaje_pos_y ) )
+                                pygame.display.update()
+                                clock.tick(5)
                             for j in range(dif_posicion_y_pila):
                                 pos_personaje_y+=1
                                 costo +=  1
                                 direccion = "abajo"
                                 # mover_personaje_abajo()
+                                personaje_pos_y = pos_personaje_y * CELL_SIZE + (CELL_SIZE - personaje_alto) // 1.5
+                                screen.blit( personajes[ direccion ][ frame ], ( personaje_pos_x, personaje_pos_y ) )
+                                pygame.display.update()
+                                clock.tick(5)
                         if(dif_posicion_x_pila<0 and dif_posicion_y_pila<0):
                             for i in range(dif_posicion_x_pila*-1):
                                 pos_personaje_x-=1
                                 costo +=  1
                                 direccion = "izquierda"
                                 # mover_personaje_izquierda()
-                            
-                                
+                                personaje_pos_x = pos_personaje_x * CELL_SIZE + (CELL_SIZE - personaje_ancho) // 1.5 
+                                screen.blit( personajes[ direccion ][ frame ], ( personaje_pos_x, personaje_pos_y ) )
+                                pygame.display.update()
+                                clock.tick(5)
                             for j in range(dif_posicion_y_pila*-1):
                                 pos_personaje_y-=1
                                 costo +=  1
                                 direccion = "arriba"
                                 # mover_personaje_arriba()
-                            
+                                personaje_pos_y = pos_personaje_y * CELL_SIZE + (CELL_SIZE - personaje_alto) // 1.5
+                                screen.blit( personajes[ direccion ][ frame ], ( personaje_pos_x, personaje_pos_y ) )
+                                pygame.display.update()
+                                clock.tick(5)
                         if(dif_posicion_x_pila<0 and dif_posicion_y_pila>=0):
                             for i in range(dif_posicion_x_pila*-1):
                                 pos_personaje_x-=1
                                 costo +=  1
                                 direccion = "izquierda"
                                 # mover_personaje_izquierda()
+                                personaje_pos_x = pos_personaje_x * CELL_SIZE + (CELL_SIZE - personaje_ancho) // 1.5
+                                screen.blit( personajes[ direccion ][ frame ], ( personaje_pos_x, personaje_pos_y ) )
+                                pygame.display.update()
+                                clock.tick(5)
                             for j in range(dif_posicion_y_pila):
                                 pos_personaje_y+=1
                                 costo +=  1
                                 direccion = "abajo"
                                 # mover_personaje_abajo()
-                            
-                            
+                                personaje_pos_y = pos_personaje_y * CELL_SIZE + (CELL_SIZE - personaje_alto) // 1.5
+                                screen.blit( personajes[ direccion ][ frame ], ( personaje_pos_x, personaje_pos_y ) )
+                                pygame.display.update()
+                                clock.tick(5)
                         if(dif_posicion_x_pila>=0 and dif_posicion_y_pila<0):
                             for i in range(dif_posicion_x_pila):
                                 pos_personaje_x+=1
                                 costo +=  1
                                 # mover_personaje_derecha()
                                 direccion = "derecha"
+                                personaje_pos_x = pos_personaje_x * CELL_SIZE + (CELL_SIZE - personaje_ancho) // 1.5 
+                                screen.blit( personajes[ direccion ][ frame ], ( personaje_pos_x, personaje_pos_y ) )
+                                pygame.display.update()
+                                clock.tick(5)
                             for j in range(dif_posicion_y_pila*-1):
                                 pos_personaje_y-=1
                                 costo +=  1
                                 direccion = "arriba"
                                 # mover_personaje_arriba()
+                                personaje_pos_y = pos_personaje_y * CELL_SIZE + (CELL_SIZE - personaje_alto) // 1.5
+                                screen.blit( personajes[ direccion ][ frame ], ( personaje_pos_x, personaje_pos_y ) )
+                                pygame.display.update()
+                                clock.tick(5)
                         if(pos_personaje_x==4 and pos_personaje_y==8):
                             costo=0
                     else: 
@@ -458,13 +506,19 @@ def main():
                                 costo +=  1
                                 # mover_personaje_derecha()
                                 direccion = "derecha"
+                                personaje_pos_x = pos_personaje_x * CELL_SIZE + (CELL_SIZE - personaje_ancho) // 1.5
+                                screen.blit( personajes[ direccion ][ frame ], ( personaje_pos_x, personaje_pos_y ) )
+                                pygame.display.update()
+                                clock.tick(5)
                             for j in range(dif_posicion_y):
                                 pos_personaje_y+=1
                                 costo +=  1
                                 direccion = "abajo"
                                 # mover_personaje_abajo()
-                                
-                            
+                                personaje_pos_y = pos_personaje_y * CELL_SIZE + (CELL_SIZE - personaje_alto) // 1.5    
+                                screen.blit( personajes[ direccion ][ frame ], ( personaje_pos_x, personaje_pos_y ) )
+                                pygame.display.update()
+                                clock.tick(5)
                             # thread_derecha.join()
                         if (dif_posicion_x<0 and dif_posicion_y<0):
                             for i in range(dif_posicion_x*-1):
@@ -472,70 +526,70 @@ def main():
                                 direccion = "izquierda"
                                 # mover_personaje_izquierda()
                                 costo +=  1
-                                
+                                personaje_pos_x = pos_personaje_x * CELL_SIZE + (CELL_SIZE - personaje_ancho) // 1.5
+                                screen.blit( personajes[ direccion ][ frame ], ( personaje_pos_x, personaje_pos_y ) ) 
+                                pygame.display.update()
+                                clock.tick(5)
                             for j in range(dif_posicion_y*-1):
                                 pos_personaje_y-=1
                                 costo +=  1
                                 direccion = "arriba"
                                 # mover_personaje_arriba()
-                                
+                                personaje_pos_y = pos_personaje_y * CELL_SIZE + (CELL_SIZE - personaje_alto) // 1.5
+                                screen.blit( personajes[ direccion ][ frame ], ( personaje_pos_x, personaje_pos_y ) )
+                                pygame.display.update()
+                                clock.tick(5)
                         if(dif_posicion_x<0 and dif_posicion_y>=0):
                             for i in range(dif_posicion_x*-1):
                                 pos_personaje_x-=1
                                 costo +=  1
                                 direccion = "izquierda"
                                 # mover_personaje_izquierda()
+                                personaje_pos_x = pos_personaje_x * CELL_SIZE + (CELL_SIZE - personaje_ancho) // 1.5
+                                screen.blit( personajes[ direccion ][ frame ], ( personaje_pos_x, personaje_pos_y ) )
+                                pygame.display.update()
+                                clock.tick(5)
                             for j in range(dif_posicion_y):
                                 pos_personaje_y+=1
                                 costo +=  1
                                 direccion = "abajo"
                                 # mover_personaje_abajo()
-                            
-                            
+                                personaje_pos_y = pos_personaje_y * CELL_SIZE + (CELL_SIZE - personaje_alto) // 1.5
+                                screen.blit( personajes[ direccion ][ frame ], ( personaje_pos_x, personaje_pos_y ) )
+                                pygame.display.update()
+                                clock.tick(5)
                         if(dif_posicion_x>=0 and dif_posicion_y<0):
                             for i in range(dif_posicion_x):
                                 pos_personaje_x+=1
                                 costo +=  1
                                 direccion = "derecha"
                                 # mover_personaje_derecha()
+                                personaje_pos_x = pos_personaje_x * CELL_SIZE + (CELL_SIZE - personaje_ancho) // 1.5
+                                screen.blit( personajes[ direccion ][ frame ], ( personaje_pos_x, personaje_pos_y ) )
+                                pygame.display.update()
+                                clock.tick(5)
                             for j in range(dif_posicion_y*-1):
                                 pos_personaje_y-=1
                                 costo +=  1
                                 direccion = "arriba"
                                 # mover_personaje_arriba()
                                 # mover_personaje(ruta_optima)
+                                personaje_pos_y = pos_personaje_y * CELL_SIZE + (CELL_SIZE - personaje_alto) // 1.5
+                                screen.blit( personajes[ direccion ][ frame ], ( personaje_pos_x, personaje_pos_y ) )
+                                pygame.display.update()
+                                clock.tick(5)
+
                 btn_start.pressed=False
                 # btn_start.update()
                 
-            interfaz.dibujar_texto( screen , "Buscando ... " , WIDTH / 2 - 80 , 10 )
+            
             btn_start.pressed = False
             
         if costo == BATERIA_MAX  or not posiciones_coleccionables or vidas == 0:
             btn_start.pressed = False
-
-
-        # Calcular la posición del personaje en la casilla actual
-        personaje_pos_x = pos_personaje_x * CELL_SIZE + (CELL_SIZE - personaje_ancho) // 1.5 
-        personaje_pos_y = pos_personaje_y * CELL_SIZE + (CELL_SIZE - personaje_alto) // 1.5
-
-        bayas_pos_x = 4 * CELL_SIZE
-        bayas_pos_y = 8 * CELL_SIZE
-
-        time_elapsed += 1
-        if time_elapsed >= frames_per_second:
-            time_elapsed = 0
-            frame = (frame + 1) % 2  # This line switches the frame between 0 and 1
-            animate_imagen_3()
-            animate_bayas()
-            
-            animate_muk()
-            animate_voltorb()
-
-        colocar_enemigos( posiciones_muk, posiciones_coleccionables, frame_index_muk, muk )
-        colocar_enemigos( posiciones_voltorb, posiciones_coleccionables, frame_index_voltorb, voltorb )
-
-        screen.blit( personajes[ direccion ][ frame ], ( personaje_pos_x, personaje_pos_y ) )
         
+        screen.blit( personajes[ direccion ][ frame ], ( personaje_pos_x, personaje_pos_y ) )
+
         screen.blit( bayas[frame_index_bayas], (bayas_pos_x, bayas_pos_y) )        
 
         interfaz.dibujar_interface( screen , costo , vidas  )
