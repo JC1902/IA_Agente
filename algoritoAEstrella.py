@@ -1,5 +1,5 @@
 import heapq
-
+import math
 class Nodo:
     def __init__(self, x, y):
         self.x = x
@@ -23,10 +23,15 @@ def obtener_vecinos(nodo, grid):
         if 0 <= nx < len(grid) and 0 <= ny < len(grid[0]) and grid[ny][nx] != 1 and grid[ny][nx] != 2 and grid[ny][nx] != 3:
             vecinos.append(Nodo(nx, ny))
     return vecinos
-
+def distancia_entre_puntos(x1, y1, x2, y2):
+    distancia = math.sqrt((x2 - x1)**2 + (y2 - y1)**2)
+    return distancia
 def a_estrella(grid, inicio, metas):
     cola_abierta = []
     cola_cerrada = []
+    costo=0
+    pos_x_pila = 4
+    pos_y_pila = 8
     metas_por_alcanzar = list(metas)
     # cola_abierta.append(inicio)
     cola_cerrada.append(inicio)
@@ -42,6 +47,7 @@ def a_estrella(grid, inicio, metas):
         # if not metas_por_alcanzar:
         #     camino_completado=True
         #     return devolver_camino(cola_cerrada)
+        
         if(nodo_actual is None):
             break
         if (nodo_actual.x, nodo_actual.y) in metas_por_alcanzar:
