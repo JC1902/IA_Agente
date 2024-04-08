@@ -7,7 +7,7 @@ from assets import img_medidor ,img_vidas
 WIDTH, HEIGHT = 800, 850
 CELL_SIZE = 80
 VIDAS_MAX = 3
-BATERIA_MAX = 30
+BATERIA_MAX = 20
  
 # Colores
 WHITE = (255, 255, 255)
@@ -43,8 +43,19 @@ class Interfaz:
         
 
     def dibujar_texto ( self, screen , texto , posx ,posy ):
-        pasos_txt =  self.font.render( texto , True, BLACK)
-        screen.blit ( pasos_txt ,(posx , posy) )
+        # Obtener el tamaño del texto renderizado
+        pasos_txt = self.font.render(texto, True, BLACK)
+        texto_rect = pasos_txt.get_rect()
+
+        # Calcular las coordenadas de la esquina superior izquierda del rectángulo que rodea al texto
+        rect_x = posx - 5  # Puedes ajustar este valor según tu preferencia
+        rect_y = posy - 5  # Puedes ajustar este valor según tu preferencia
+
+        # Llenar un rectángulo alrededor del texto con el color de fondo de la ventana
+        pygame.draw.rect(screen, (255, 255, 255), (rect_x, rect_y, texto_rect.width + 10, texto_rect.height + 10))
+
+        # Dibujar el texto
+        screen.blit(pasos_txt, (posx, posy))
 
 
 

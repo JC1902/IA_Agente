@@ -133,8 +133,8 @@ def animate_voltorb():
         frame_index_voltorb = (frame_index_voltorb + 1) % len(voltorb)
         voltorb_animation_counter = 0
 
-posiciones_muk = [(random.randrange(1, 9), random.randrange(1, 9)) for _ in range(4)]
-posiciones_voltorb = [(random.randrange(1, 9), random.randrange(1, 9)) for _ in range(4)]
+posiciones_muk = [(random.randrange(1, 9), random.randrange(1, 9)) for _ in range(3)]
+posiciones_voltorb = [(random.randrange(1, 9), random.randrange(1, 9)) for _ in range(3)]
 
 def colocar_enemigos(posiciones_enemigos, posiciones_colectables, frame_enemigo, enemigo_images):
     ancho_enemigo, alto_enemigo = 40 , 40
@@ -359,7 +359,9 @@ def main():
             break
         #determina si el boton de inicio fue presionado y comienza el movimiento
         if(movimiento_on==True and ruta_optima is not None and len(ruta_optima)>0):
-            
+            interfaz.dibujar_texto( screen , "Buscando ... " , WIDTH / 2 - 80 , 10 )
+            pygame.display.update()
+                     
             dif_posicion_x_pila= 4 - pos_personaje_x
             dif_posicion_y_pila= 8-pos_personaje_y
             posicion_pila=[(4,8)]
@@ -391,7 +393,9 @@ def main():
                         print("HA GANADO!!!")
                         break    
                 #No jala el dibujar texto aqui, no se porque
-                interfaz.dibujar_texto( screen , "Recargando ... " , WIDTH / 2 - 80 , 10 )
+                interfaz.dibujar_texto( screen , "Recargando ... " , 80 , 10 )
+                print("Recargando")
+                pygame.display.update()
                 nodo_siguiente_pila= camino_a_pila.pop()
                 print("Camino a la pila: ", camino_a_pila)
                 camino_a_pila_aux.append(nodo_siguiente_pila)
@@ -528,7 +532,7 @@ def main():
         # btn_start.pressed= True
         if btn_start.pressed :
             movimiento_on = True
-            interfaz.dibujar_texto( screen , "Buscando ... " , WIDTH / 2 - 80 , 10 )
+            
             print("Lista coleccionables:",posiciones_coleccionables )
             print("Posicion jugador: ", nodo_jugador.x,nodo_jugador.y)
             ruta_optima = algoritoAEstrella.a_estrella(mapaJuego,nodo_jugador,posiciones_coleccionables)
