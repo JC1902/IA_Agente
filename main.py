@@ -35,8 +35,8 @@ mapaJuego = [
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
     [1, 0, 0, 0, 2, 0, 0, 0, 0, 1],
     [1, 0, 0, 0, 3, 0, 0, 0, 0, 1],
-    [1, 0, 0, 0, 2, 0, 0, 0, 0, 1],
-    [1, 0, 0, 0, 2, 2, 2, 2, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 2, 2, 0, 2, 2, 1],
     [1, 3, 2, 0, 0, 0, 0, 0, 0, 1],
     [1, 0, 2, 0, 0, 0, 0, 0, 0, 1],
     [1, 0, 2, 0, 0, 0, 2, 2, 3, 1],
@@ -47,7 +47,7 @@ mapaJuego = [
 # Posiciones posible para el personaje
 posiciones_personaje = [(1,1), (1,8), (8,1), (8,8)]
 pos_personaje_x, pos_personaje_y = random.choice(posiciones_personaje)
-pos_personaje__final = algoritoAEstrella.Nodo(pos_personaje_x,pos_personaje_y)
+nodo_jugador = algoritoAEstrella.Nodo(pos_personaje_x,pos_personaje_y)
 
 # Dirección inicial del personaje
 if (pos_personaje_x, pos_personaje_y) == (1,1) or (pos_personaje_x, pos_personaje_y) == (8,1):
@@ -314,6 +314,7 @@ def main():
     global pos_personaje_x, pos_personaje_y, direccion , vidas , costo, ruta_optima, posiciones_coleccionables, movimiento_on, elemento_tupla, num_elemento    # Para modificar las variables globales
     global se_esta_recargando, se_termino_de_recargar
     global camino_a_pila_aux
+    global nodo_jugador
     camino_a_pila_aux = []
     movimiento_on= False
     num_elemento=0
@@ -324,6 +325,9 @@ def main():
     running = True
        
     while running:
+        if (posiciones_coleccionables is None):
+            print("HA GANADO!!!")
+            break
         if(movimiento_on==True and ruta_optima is not None and len(ruta_optima)>0):
             
             dif_posicion_x_pila= 4 - pos_personaje_x
@@ -335,33 +339,52 @@ def main():
                 camino_a_pila= algoritoAEstrella.a_estrella(mapaJuego,nodo_jugador,posicion_pila)
                 # print("Camino Aux:", camino_a_pila)
                 camino_a_pila.reverse()
+                camino_a_pila.pop()
             distancia_entre_nodos = len(camino_a_pila)
             print("pos_jugador: ",nodo_jugador.x,nodo_jugador.y)
             print("Distancia: ", distancia_entre_nodos)
-            if(se_termino_de_recargar==True):
-                tamano = len(camino_a_pila_aux)
-                if(tamano != 0):
-                    nodo_siguiente_pila= camino_a_pila_aux.pop()
-                    print("Camino a de regreso: ", camino_a_pila_aux)
-                    pos_personaje_x, pos_personaje_y = nodo_siguiente_pila
-                else:
-                    se_termino_de_recargar= False
-            elif(distancia_entre_nodos>=19-costo):
+            
+            if(distancia_entre_nodos>=28-costo and se_termino_de_recargar is False ):
+                
+                elemento_lista_coleccionable= posiciones_coleccionables[0]
+                distancia_a_coleccionable= distancia_entre_puntos(nodo_jugador.x,nodo_jugador.y,elemento_lista_coleccionable[0],elemento_lista_coleccionable[1])
+                if(distancia_a_coleccionable<30-costo):
+                    ruta_optima= algoritoAEstrella.a_estrella(mapaJuego,nodo_jugador,posiciones_coleccionables)
+                    ruta_optima.reverse()
+                    pos_personaje_x, pos_personaje_y = ruta_optima.pop()
+                    recolectar_coleccionables(pos_personaje_x,pos_personaje_y)
                 se_esta_recargando=True
-                
-                
+                if (posiciones_coleccionables is None):
+                    print("HA GANADO!!!")
+                    break    
+                interfaz.dibujar_texto( screen , "Recargando ... " , WIDTH / 2 - 80 , 10 )
                 nodo_siguiente_pila= camino_a_pila.pop()
                 print("Camino a la pila: ", camino_a_pila)
                 camino_a_pila_aux.append(nodo_siguiente_pila)
+                time.sleep(.2)
+                if(pos_personaje_x<nodo_siguiente_pila[0]):
+                    direccion = "derecha"
+                elif(pos_personaje_x>nodo_siguiente_pila[0]):
+                    direccion="izquierda"
+                elif(pos_personaje_y<nodo_siguiente_pila[1]):
+                    direccion="abajo"
+                else:
+                    direccion="arriba"
                 pos_personaje_x, pos_personaje_y = nodo_siguiente_pila
-                
+                recolectar_coleccionables(pos_personaje_x,pos_personaje_y)
                 if pos_personaje_x == 4 and pos_personaje_y == 8 :
                     vidas = VIDAS_MAX
                     costo = 0
-                    se_termino_de_recargar=True
+                    # se_termino_de_recargar=True
                     print("camino aux 2:", camino_a_pila_aux)
                     se_esta_recargando=False
-            
+                    if (posiciones_coleccionables is None):
+                        print("HA GANADO!!!")
+                        break    
+                    nodo_pos_personaje= algoritoAEstrella.Nodo(pos_personaje_x,pos_personaje_y)
+                    ruta_optima = algoritoAEstrella.a_estrella(mapaJuego,nodo_pos_personaje,posiciones_coleccionables)
+                    ruta_optima.reverse()
+                    ruta_optima.pop()
             else:
                 elemento_tupla= ruta_optima.pop()
                 if(pos_personaje_x<elemento_tupla[0]):
@@ -384,8 +407,14 @@ def main():
             
                 time.sleep(.2)
                 pos_personaje_x,pos_personaje_y= elemento_tupla
-                costo+=1
+                if pos_personaje_x == 4 and pos_personaje_y == 8 :
+                    vidas = VIDAS_MAX
+                    costo = 0
                 recolectar_coleccionables(pos_personaje_x,pos_personaje_y)
+            costo+=1
+            if (posiciones_coleccionables is None):
+                print("HA GANADO!!!")
+                break
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -465,193 +494,17 @@ def main():
             movimiento_on = True
             interfaz.dibujar_texto( screen , "Buscando ... " , WIDTH / 2 - 80 , 10 )
             print("Lista coleccionables:",posiciones_coleccionables )
-            print("Posicion jugador: ", pos_personaje__final.x, pos_personaje__final.y)
-            ruta_optima = algoritoAEstrella.a_estrella(mapaJuego,pos_personaje__final,posiciones_coleccionables)
+            print("Posicion jugador: ", nodo_jugador.x,nodo_jugador.y)
+            ruta_optima = algoritoAEstrella.a_estrella(mapaJuego,nodo_jugador,posiciones_coleccionables)
+            
             
             if ruta_optima:
                 print("Ruta óptima encontrada Final:", ruta_optima)
                 ruta_optima.reverse()
+                ruta_optima.pop()
             else:
                 print("No se encontró una ruta válida.")
-            # mover_personaje(ruta_optima,pos_personaje_x,pos_personaje_y)
-            # if (ruta_optima is not None):
-            #     for nodo in ruta_optima:
-            #         if(vidas == 0):
-            #             print("TE QUEDASTE SIN VIDAS!!")
-            #             break
-            #         recolectar_coleccionables(pos_personaje_x,pos_personaje_y)
-            #         distancia_entre_nodos= distancia_entre_puntos(4,8,pos_personaje_x,pos_personaje_y)
-            #         dif_posicion_x_pila= 4 - pos_personaje_x
-            #         dif_posicion_y_pila= 8-pos_personaje_y
-            #         posicion_pila=[(4,8)]
-            #         nodo_jugador=algoritoAEstrella.Nodo(pos_personaje_x,pos_personaje_y)
-            #         if(distancia_entre_nodos>19-costo):
-            #             algoritoAEstrella.a_estrella(mapaJuego,nodo_jugador,posicion_pila)
-            #             if(dif_posicion_x_pila>=0 and dif_posicion_y_pila>=0):
-            #                 for i in range(dif_posicion_x_pila):
-            #                     pos_personaje_x+=1
-            #                     costo +=  1
-            #                     # mover_personaje_derecha()
-            #                     direccion = "derecha"
-            #                     personaje_pos_x = pos_personaje_x * CELL_SIZE + (CELL_SIZE - personaje_ancho) // 1.5
-            #                     screen.blit( personajes[ direccion ][ frame ], ( personaje_pos_x, personaje_pos_y ) )
-            #                     pygame.display.update()
-                                
-            #                     clock.tick(5)
-            #                 for j in range(dif_posicion_y_pila):
-            #                     pos_personaje_y+=1
-            #                     costo +=  1
-            #                     direccion = "abajo"
-            #                     # mover_personaje_abajo()
-            #                     personaje_pos_y = pos_personaje_y * CELL_SIZE + (CELL_SIZE - personaje_alto) // 1.5
-            #                     screen.blit( personajes[ direccion ][ frame ], ( personaje_pos_x, personaje_pos_y ) )
-            #                     pygame.display.update()
-            #                     clock.tick(5)
-            #             if(dif_posicion_x_pila<0 and dif_posicion_y_pila<0):
-            #                 for i in range(dif_posicion_x_pila*-1):
-            #                     pos_personaje_x-=1
-            #                     costo +=  1
-            #                     direccion = "izquierda"
-            #                     # mover_personaje_izquierda()
-            #                     personaje_pos_x = pos_personaje_x * CELL_SIZE + (CELL_SIZE - personaje_ancho) // 1.5 
-            #                     screen.blit( personajes[ direccion ][ frame ], ( personaje_pos_x, personaje_pos_y ) )
-            #                     pygame.display.update()
-            #                     clock.tick(5)
-            #                 for j in range(dif_posicion_y_pila*-1):
-            #                     pos_personaje_y-=1
-            #                     costo +=  1
-            #                     direccion = "arriba"
-            #                     # mover_personaje_arriba()
-            #                     personaje_pos_y = pos_personaje_y * CELL_SIZE + (CELL_SIZE - personaje_alto) // 1.5
-            #                     screen.blit( personajes[ direccion ][ frame ], ( personaje_pos_x, personaje_pos_y ) )
-            #                     pygame.display.update()
-            #                     clock.tick(5)
-            #             if(dif_posicion_x_pila<0 and dif_posicion_y_pila>=0):
-            #                 for i in range(dif_posicion_x_pila*-1):
-            #                     pos_personaje_x-=1
-            #                     costo +=  1
-            #                     direccion = "izquierda"
-            #                     # mover_personaje_izquierda()
-            #                     personaje_pos_x = pos_personaje_x * CELL_SIZE + (CELL_SIZE - personaje_ancho) // 1.5
-            #                     screen.blit( personajes[ direccion ][ frame ], ( personaje_pos_x, personaje_pos_y ) )
-            #                     pygame.display.update()
-            #                     clock.tick(5)
-            #                 for j in range(dif_posicion_y_pila):
-            #                     pos_personaje_y+=1
-            #                     costo +=  1
-            #                     direccion = "abajo"
-            #                     # mover_personaje_abajo()
-            #                     personaje_pos_y = pos_personaje_y * CELL_SIZE + (CELL_SIZE - personaje_alto) // 1.5
-            #                     screen.blit( personajes[ direccion ][ frame ], ( personaje_pos_x, personaje_pos_y ) )
-            #                     pygame.display.update()
-            #                     clock.tick(5)
-            #             if(dif_posicion_x_pila>=0 and dif_posicion_y_pila<0):
-            #                 for i in range(dif_posicion_x_pila):
-            #                     pos_personaje_x+=1
-            #                     costo +=  1
-            #                     # mover_personaje_derecha()
-            #                     direccion = "derecha"
-            #                     personaje_pos_x = pos_personaje_x * CELL_SIZE + (CELL_SIZE - personaje_ancho) // 1.5 
-            #                     screen.blit( personajes[ direccion ][ frame ], ( personaje_pos_x, personaje_pos_y ) )
-            #                     pygame.display.update()
-            #                     clock.tick(5)
-            #                 for j in range(dif_posicion_y_pila*-1):
-            #                     pos_personaje_y-=1
-            #                     costo +=  1
-            #                     direccion = "arriba"
-            #                     # mover_personaje_arriba()
-            #                     personaje_pos_y = pos_personaje_y * CELL_SIZE + (CELL_SIZE - personaje_alto) // 1.5
-            #                     screen.blit( personajes[ direccion ][ frame ], ( personaje_pos_x, personaje_pos_y ) )
-            #                     pygame.display.update()
-            #                     clock.tick(5)
-            #             if(pos_personaje_x==4 and pos_personaje_y==8):
-            #                 costo=0
-            #         else: 
-            #             posicion_nodo_x, posicion_nodo_y = nodo
-            #             dif_posicion_x= posicion_nodo_x-pos_personaje_x
-            #             dif_posicion_y= posicion_nodo_y-pos_personaje_y
-                    
-                        
-                        
-            #             if(dif_posicion_x >= 0 and dif_posicion_y>=0):
-                            
-            #                 for i in range(dif_posicion_x):
-            #                     pos_personaje_x+=1
-            #                     costo +=  1
-            #                     # mover_personaje_derecha()
-            #                     direccion = "derecha"
-            #                     personaje_pos_x = pos_personaje_x * CELL_SIZE + (CELL_SIZE - personaje_ancho) // 1.5
-            #                     screen.blit( personajes[ direccion ][ frame ], ( personaje_pos_x, personaje_pos_y ) )
-            #                     pygame.display.update()
-            #                     clock.tick(5)
-            #                 for j in range(dif_posicion_y):
-            #                     pos_personaje_y+=1
-            #                     costo +=  1
-            #                     direccion = "abajo"
-            #                     # mover_personaje_abajo()
-            #                     personaje_pos_y = pos_personaje_y * CELL_SIZE + (CELL_SIZE - personaje_alto) // 1.5    
-            #                     screen.blit( personajes[ direccion ][ frame ], ( personaje_pos_x, personaje_pos_y ) )
-            #                     pygame.display.update()
-            #                     clock.tick(5)
-            #                 # thread_derecha.join()
-            #             if (dif_posicion_x<0 and dif_posicion_y<0):
-            #                 for i in range(dif_posicion_x*-1):
-            #                     pos_personaje_x-=1
-            #                     direccion = "izquierda"
-            #                     # mover_personaje_izquierda()
-            #                     costo +=  1
-            #                     personaje_pos_x = pos_personaje_x * CELL_SIZE + (CELL_SIZE - personaje_ancho) // 1.5
-            #                     screen.blit( personajes[ direccion ][ frame ], ( personaje_pos_x, personaje_pos_y ) ) 
-            #                     pygame.display.update()
-            #                     clock.tick(5)
-            #                 for j in range(dif_posicion_y*-1):
-            #                     pos_personaje_y-=1
-            #                     costo +=  1
-            #                     direccion = "arriba"
-            #                     # mover_personaje_arriba()
-            #                     personaje_pos_y = pos_personaje_y * CELL_SIZE + (CELL_SIZE - personaje_alto) // 1.5
-            #                     screen.blit( personajes[ direccion ][ frame ], ( personaje_pos_x, personaje_pos_y ) )
-            #                     pygame.display.update()
-            #                     clock.tick(5)
-            #             if(dif_posicion_x<0 and dif_posicion_y>=0):
-            #                 for i in range(dif_posicion_x*-1):
-            #                     pos_personaje_x-=1
-            #                     costo +=  1
-            #                     direccion = "izquierda"
-            #                     # mover_personaje_izquierda()
-            #                     personaje_pos_x = pos_personaje_x * CELL_SIZE + (CELL_SIZE - personaje_ancho) // 1.5
-            #                     screen.blit( personajes[ direccion ][ frame ], ( personaje_pos_x, personaje_pos_y ) )
-            #                     pygame.display.update()
-            #                     clock.tick(5)
-            #                 for j in range(dif_posicion_y):
-            #                     pos_personaje_y+=1
-            #                     costo +=  1
-            #                     direccion = "abajo"
-            #                     # mover_personaje_abajo()
-            #                     personaje_pos_y = pos_personaje_y * CELL_SIZE + (CELL_SIZE - personaje_alto) // 1.5
-            #                     screen.blit( personajes[ direccion ][ frame ], ( personaje_pos_x, personaje_pos_y ) )
-            #                     pygame.display.update()
-            #                     clock.tick(5)
-            #             if(dif_posicion_x>=0 and dif_posicion_y<0):
-            #                 for i in range(dif_posicion_x):
-            #                     pos_personaje_x+=1
-            #                     costo +=  1
-            #                     direccion = "derecha"
-            #                     # mover_personaje_derecha()
-            #                     personaje_pos_x = pos_personaje_x * CELL_SIZE + (CELL_SIZE - personaje_ancho) // 1.5
-            #                     screen.blit( personajes[ direccion ][ frame ], ( personaje_pos_x, personaje_pos_y ) )
-            #                     pygame.display.update()
-            #                     clock.tick(5)
-            #                 for j in range(dif_posicion_y*-1):
-            #                     pos_personaje_y-=1
-            #                     costo +=  1
-            #                     direccion = "arriba"
-            #                     # mover_personaje_arriba()
-            #                     # mover_personaje(ruta_optima)
-            #                     personaje_pos_y = pos_personaje_y * CELL_SIZE + (CELL_SIZE - personaje_alto) // 1.5
-            #                     screen.blit( personajes[ direccion ][ frame ], ( personaje_pos_x, personaje_pos_y ) )
-            #                     pygame.display.update()
-            #                     clock.tick(5)
+          
 
                 btn_start.pressed=False
                 # btn_start.update()
@@ -676,13 +529,16 @@ def main():
             reiniciar_juego()
             posiciones_personaje = [(1,1), (1,8), (8,1), (8,8)]
             # posiciones_personaje = [(1,8)]
-            pos_personaje_x, pos_personaje_y = random.choice(posiciones_personaje)      
+            pos_personaje_x, pos_personaje_y = random.choice(posiciones_personaje) 
+            nodo_jugador=algoritoAEstrella.Nodo(pos_personaje_x,pos_personaje_y)     
             posiciones_coleccionables = [(random.randrange(1, 9), random.randrange(1, 9)) for _ in range(10)]
             colocar(posiciones_coleccionables)
             costo=0
             vidas=VIDAS_MAX
             # # pygame.display.update()
-            
+        if (posiciones_coleccionables is None):
+            print("HA GANADO!!!")
+            break    
 
         pygame.display.update()
         # clock.tick(15)

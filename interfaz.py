@@ -7,7 +7,7 @@ from assets import img_medidor ,img_vidas
 WIDTH, HEIGHT = 800, 850
 CELL_SIZE = 80
 VIDAS_MAX = 3
-BATERIA_MAX = 20
+BATERIA_MAX = 30
  
 # Colores
 WHITE = (255, 255, 255)
