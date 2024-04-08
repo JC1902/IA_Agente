@@ -328,6 +328,7 @@ def main():
         if (posiciones_coleccionables is None):
             print("HA GANADO!!!")
             break
+        #determina si el boton de inicio fue presionado y comienza el movimiento
         if(movimiento_on==True and ruta_optima is not None and len(ruta_optima)>0):
             
             dif_posicion_x_pila= 4 - pos_personaje_x
@@ -343,25 +344,30 @@ def main():
             distancia_entre_nodos = len(camino_a_pila)
             print("pos_jugador: ",nodo_jugador.x,nodo_jugador.y)
             print("Distancia: ", distancia_entre_nodos)
-            
+            # En este if se hace el regreso hacia la pila
             if(distancia_entre_nodos>=28-costo and se_termino_de_recargar is False ):
-                
-                elemento_lista_coleccionable= posiciones_coleccionables[0]
-                distancia_a_coleccionable= distancia_entre_puntos(nodo_jugador.x,nodo_jugador.y,elemento_lista_coleccionable[0],elemento_lista_coleccionable[1])
-                if(distancia_a_coleccionable<30-costo):
-                    ruta_optima= algoritoAEstrella.a_estrella(mapaJuego,nodo_jugador,posiciones_coleccionables)
-                    ruta_optima.reverse()
-                    pos_personaje_x, pos_personaje_y = ruta_optima.pop()
-                    recolectar_coleccionables(pos_personaje_x,pos_personaje_y)
-                se_esta_recargando=True
-                if (posiciones_coleccionables is None):
-                    print("HA GANADO!!!")
-                    break    
+                 # El if que sigue no funciona correctamente, ignorenlo, en teoria deberia de hacer un calculo eentre la posicion actual y el ultimo coleccionable
+                 # Si el ultimo coleccionable esta cerca y el personakej puede llegar sin que se agote la pila, llegara al coleccionable en lugar de ir hacia la pila
+                if(len(posiciones_coleccionables==1)):
+                    elemento_lista_coleccionable= posiciones_coleccionables[0]
+                    distancia_a_coleccionable= distancia_entre_puntos(nodo_jugador.x,nodo_jugador.y,elemento_lista_coleccionable[0],elemento_lista_coleccionable[1])
+                   
+                    if(distancia_a_coleccionable<30-costo):
+                        ruta_optima= algoritoAEstrella.a_estrella(mapaJuego,nodo_jugador,posiciones_coleccionables)
+                        ruta_optima.reverse()
+                        pos_personaje_x, pos_personaje_y = ruta_optima.pop()
+                        recolectar_coleccionables(pos_personaje_x,pos_personaje_y)
+                    se_esta_recargando=True
+                    if (posiciones_coleccionables is None):
+                        print("HA GANADO!!!")
+                        break    
+                #No jala el dibujar texto aqui, no se porque
                 interfaz.dibujar_texto( screen , "Recargando ... " , WIDTH / 2 - 80 , 10 )
                 nodo_siguiente_pila= camino_a_pila.pop()
                 print("Camino a la pila: ", camino_a_pila)
                 camino_a_pila_aux.append(nodo_siguiente_pila)
                 time.sleep(.2)
+                #establece direcciones
                 if(pos_personaje_x<nodo_siguiente_pila[0]):
                     direccion = "derecha"
                 elif(pos_personaje_x>nodo_siguiente_pila[0]):
@@ -386,6 +392,7 @@ def main():
                     ruta_optima.reverse()
                     ruta_optima.pop()
             else:
+                #Recorrido normal de la ruta sin recurrir a la pila
                 elemento_tupla= ruta_optima.pop()
                 if(pos_personaje_x<elemento_tupla[0]):
                     direccion = "derecha"
