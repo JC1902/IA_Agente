@@ -160,12 +160,36 @@ def colocar_enemigos(posiciones_enemigos, posiciones_colectables, frame_enemigo,
 
 
 tipo_piso = []
+numero_ceros = 0
+index_pisos = 0
 
 for y, row in enumerate(mapaJuego):
         for x, cell in enumerate(row):
             if cell == 0:
                 piso = random.choice( [ tierra, tierra, pasto, lodo ] )
                 tipo_piso.append(piso)
+                numero_ceros += 1
+print(numero_ceros)
+
+for y, row in enumerate( mapaJuego ):
+    for x, cell in enumerate( row ):
+        if cell == 0:
+            if tipo_piso[ index_pisos ] == tierra:
+                mapaJuego[ y ][ x ] = 4
+            
+            if tipo_piso[ index_pisos ] == pasto:
+                mapaJuego[ y ][ x ] = 5
+
+            if tipo_piso[ index_pisos ] == lodo:
+                mapaJuego[ y ][ x ] = 6
+        
+            index_pisos += 1
+
+# Imprimir la matriz
+for fila in mapaJuego:
+    for elemento in fila:
+        print(elemento, end=' ')
+    print()
 
 # Función para dibujar el mapa del juego
 def draw_map(mapa):
@@ -174,16 +198,21 @@ def draw_map(mapa):
 
     for y, row in enumerate(mapa):
         for x, cell in enumerate(row):
-            if cell == 0:
-                screen.blit( tipo_piso[index], (x * CELL_SIZE, y * CELL_SIZE))
-                index += 1
-            elif cell == 1:
+            #if cell == 0:
+            #    screen.blit( tipo_piso[index], (x * CELL_SIZE, y * CELL_SIZE))
+            #    index += 1
+            if cell == 1:
                 screen.blit(arbol_pasto, (x * CELL_SIZE, y * CELL_SIZE))
-            elif cell == 2:
+            if cell == 2:
                 screen.blit(arbol_tierra, (x * CELL_SIZE, y * CELL_SIZE))
-            elif cell == 3:
+            if cell == 3:
                 screen.blit(snorlax_tierra[frame_index_imagen_3], (x * CELL_SIZE, y * CELL_SIZE))
-
+            if cell == 4:
+                screen.blit( tierra, ( x * CELL_SIZE, y * CELL_SIZE ) )
+            if cell == 5:
+                screen.blit( pasto, ( x * CELL_SIZE, y * CELL_SIZE ) )
+            if cell == 6:
+                screen.blit( lodo, ( x * CELL_SIZE, y * CELL_SIZE ) )
 
 
 
@@ -348,7 +377,7 @@ def main():
             if(distancia_entre_nodos>=28-costo and se_termino_de_recargar is False ):
                  # El if que sigue no funciona correctamente, ignorenlo, en teoria deberia de hacer un calculo eentre la posicion actual y el ultimo coleccionable
                  # Si el ultimo coleccionable esta cerca y el personakej puede llegar sin que se agote la pila, llegara al coleccionable en lugar de ir hacia la pila
-                if(len(posiciones_coleccionables==1)):
+                if(len(posiciones_coleccionables) == 1 ):
                     elemento_lista_coleccionable= posiciones_coleccionables[0]
                     distancia_a_coleccionable= distancia_entre_puntos(nodo_jugador.x,nodo_jugador.y,elemento_lista_coleccionable[0],elemento_lista_coleccionable[1])
                    
