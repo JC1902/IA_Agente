@@ -495,6 +495,9 @@ def main():
             posiciones_coleccionables = [(random.randrange(1, 9), random.randrange(1, 9)) for _ in range(10)]
             colocar(posiciones_coleccionables)
             costo=0
+            camino_a_pila=[]
+            se_esta_recargando=False
+            ruta_optima = []
             vidas=VIDAS_MAX
             
         
