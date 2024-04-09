@@ -3,7 +3,6 @@ import algoritoAEstrella
 from assets import *
 import random
 import time
-import math
 from interfaz import Interfaz ,BATERIA_MAX , VIDAS_MAX , Button
 
 
@@ -33,12 +32,12 @@ btn_reinicio = Button(screen, 500, 800, 'Reiniciar',100,40 )
 mapaJuego = [
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
     [1, 0, 0, 0, 2, 0, 0, 0, 0, 1],
-    [1, 0, 0, 0, 3, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 3, 0, 0, 2, 0, 1],
     [1, 0, 3, 0, 0, 0, 0, 0, 0, 1],
     [1, 0, 0, 0, 2, 2, 0, 2, 0, 1],
     [1, 0, 3, 0, 0, 0, 0, 0, 0, 1],
     [1, 0, 2, 0, 0, 0, 0, 0, 0, 1],
-    [1, 0, 2, 0, 0, 0, 2, 2, 3, 1],
+    [1, 0, 2, 0, 0, 0, 2, 0, 3, 1],
     [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 ]
@@ -131,10 +130,12 @@ def animate_voltorb():
     if voltorb_animation_counter >= voltorb_animation_speed:
         frame_index_voltorb = (frame_index_voltorb + 1) % len(voltorb)
         voltorb_animation_counter = 0
-
+        
+# Establece las posiciones de los enemigos
 posiciones_muk = [(random.randrange(1, 9), random.randrange(1, 9)) for _ in range(2)]
 posiciones_voltorb = [(random.randrange(1, 9), random.randrange(1, 9)) for _ in range(2)]
 
+# Funcion la cual coloca los enemigos en el mapa
 def colocar_enemigos(posiciones_enemigos, posiciones_colectables, frame_enemigo, enemigo_images):
     ancho_enemigo, alto_enemigo = 40 , 40
 
@@ -162,6 +163,7 @@ tipo_piso = []
 
 index_pisos = 0
 
+# Intercambia los 0 por diferentes numeros, para agregar diferente tipo de suelo
 for y, row in enumerate(mapaJuego):
         for x, cell in enumerate(row):
             if cell == 0:
@@ -227,10 +229,7 @@ def contacto_enemigo(x , y):
         i = i + 20
     return False    
         
-
-def distancia_entre_puntos(x1, y1, x2, y2):
-    distancia = math.sqrt((x2 - x1)**2 + (y2 - y1)**2)
-    return distancia
+# Funcion la cual reinicia el juego
 def reiniciar_juego():
     
     frame = 0
@@ -265,6 +264,7 @@ def main():
     time_elapsed = 0
     frame = 0    
 
+    # Se inicializan las variables globales a utilizar
     global pos_personaje_x, pos_personaje_y, direccion , vidas , costo, ruta_optima, posiciones_coleccionables, movimiento_on, elemento_tupla, num_elemento    # Para modificar las variables globales
     global se_esta_recargando, se_termino_de_recargar
     global camino_a_pila_aux
@@ -281,16 +281,20 @@ def main():
        
     while running:
         
+        # Se comprueba si el costo supero la bateria para detener el juego
         if costo>BATERIA_MAX :
             interfaz.dibujar_texto( screen , "Te quedaste sin energia " , 350 , 400 )
             pygame.display.update()
+        # Se comprueba si se acabo de recoger todos los coleccionables para mostrar el mensaje de victoria
         if(len(posiciones_coleccionables)==0):
             interfaz.dibujar_texto( screen , " HAS GANADO!! " , 350 , 400 )
             pygame.display.update()
+        # Se comprueba si tuvo un contacto con el enemigo
         if contacto_enemigo( pos_personaje_x , pos_personaje_y ) :
             vidas = vidas -1  if vidas > 0 else 0
             
-        #determina si el boton de inicio fue presionado y comienza el movimiento
+        # Determina si el boton de inicio fue presionado y comienza el movimiento
+        
         if(movimiento_on==True and ruta_optima is not None and len(ruta_optima) !=0 and len(ruta_optima)>0):
             interfaz.dibujar_texto( screen , "Buscando ... " , WIDTH / 2 - 80 , 10 )
             pygame.display.update()
@@ -298,6 +302,7 @@ def main():
             posicion_pila=[(4,8)]
        
             nodo_jugador=algoritoAEstrella.Nodo(pos_personaje_x,pos_personaje_y)
+            # Comprueba si no se encuentra recargando para calcular una ruta a la bateria
             if(se_esta_recargando==False):
                 camino_a_pila= algoritoAEstrella.a_estrella(mapaJuego,nodo_jugador,posicion_pila)
                 
@@ -306,18 +311,22 @@ def main():
             distancia_entre_nodos = len(camino_a_pila)
             print("pos_jugador: ",nodo_jugador.x,nodo_jugador.y)
             print("Distancia: ", distancia_entre_nodos)
-            # En este if se hace el regreso hacia la pila
+            
+            # En este if se hace el regreso hacia la pila 
             if((distancia_entre_nodos>=40-costo and se_termino_de_recargar is False) or vidas < 2 ):
                  
                 se_esta_recargando=True               
+                # If que realiza lo siguiente:
+                # Si solo le queda un coleccionable y tiene energia suficiente, acude al coleccionable
                 if(len(posiciones_coleccionables) == 1 ):
                     elemento_lista_coleccionable= posiciones_coleccionables[0]
                     print("Elemento lista: ",elemento_lista_coleccionable)
                     ruta_auxiliar_un_coleccionable = algoritoAEstrella.a_estrella(mapaJuego,nodo_jugador,posiciones_coleccionables)
                     tamano_ruta = len(ruta_auxiliar_un_coleccionable)
                     
+                    #If el cual determina si el camino al coleccionable es menor a la energia restante
                     if(tamano_ruta<60-costo):
-                        
+                        # Genera una nueva ruta al ultimo coleccionable
                         if primer_ruta is True:
                             ruta_optima= algoritoAEstrella.a_estrella(mapaJuego,nodo_jugador,posiciones_coleccionables)
                             primer_ruta=False
@@ -325,6 +334,7 @@ def main():
                             ruta_optima.pop()
                         time.sleep(.2)
                         nodo_sig= ruta_optima.pop()
+                        # Establece las direcciones
                         if(pos_personaje_x<nodo_sig[0]):
                             direccion = "derecha"
                         elif(pos_personaje_x>nodo_sig[0]):
@@ -333,6 +343,7 @@ def main():
                             direccion="abajo"
                         else:
                             direccion="arriba"
+                        # Mueve el personaje al siguiente nodo
                         pos_personaje_x, pos_personaje_y = nodo_sig
                         recolectar_coleccionables(pos_personaje_x,pos_personaje_y)
                         
@@ -346,7 +357,7 @@ def main():
                     print("Camino a la pila: ", camino_a_pila)
                     camino_a_pila_aux.append(nodo_siguiente_pila)
                     time.sleep(.2)
-                    #establece direcciones
+                    # Establece las direcciones del personaje
                     if(pos_personaje_x<nodo_siguiente_pila[0]):
                         direccion = "derecha"
                     elif(pos_personaje_x>nodo_siguiente_pila[0]):
@@ -355,9 +366,11 @@ def main():
                         direccion="abajo"
                     else:
                         direccion="arriba"
+                    # Mueve el personaje al siguiente nodo
                     pos_personaje_x, pos_personaje_y = nodo_siguiente_pila
                     recolectar_coleccionables(pos_personaje_x,pos_personaje_y)
                     
+                    # Si el personaje llego a la pila, recarga sus vidas y su energia
                     if pos_personaje_x == 4 and pos_personaje_y == 8 :
                         vidas = VIDAS_MAX
                         costo = 0
@@ -370,7 +383,7 @@ def main():
                         ruta_optima.reverse()
                         ruta_optima.pop()
             else:
-                #Recorrido normal de la ruta sin recurrir a la pila
+                # Recorrido normal de la ruta sin recurrir a la pila
                 elemento_tupla= ruta_optima.pop()
                 if(pos_personaje_x<elemento_tupla[0]):
                     direccion = "derecha"
@@ -394,6 +407,7 @@ def main():
                     vidas = VIDAS_MAX
                     costo = 0
                 recolectar_coleccionables(pos_personaje_x,pos_personaje_y)
+            # Establece el costo por cada tipo de piso
             if mapaJuego[pos_personaje_x][pos_personaje_y]== 6:
                 costo+=3
             elif mapaJuego[pos_personaje_x][pos_personaje_y]==4:
@@ -403,6 +417,7 @@ def main():
            
             
             recolectar_coleccionables(pos_personaje_x,pos_personaje_y)
+        # El programa estara alerta de cualquier evento que pase ene el juego
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -432,6 +447,8 @@ def main():
         bayas_pos_y = 8 * CELL_SIZE
 
         time_elapsed += 1
+        
+        # Genera las animaciones de todos los elementos del juego
         if time_elapsed >= frames_per_second:
             time_elapsed = 0
             frame = (frame + 1) % 2  
@@ -444,6 +461,7 @@ def main():
         colocar_enemigos( posiciones_muk, posiciones_coleccionables, frame_index_muk, muk )
         colocar_enemigos( posiciones_voltorb, posiciones_coleccionables, frame_index_voltorb, voltorb )
         
+        # Si el boton de inicio es presionado, comienza el juego
         if btn_start.pressed :
             movimiento_on = True
             primer_ruta= True
@@ -469,6 +487,7 @@ def main():
         if costo == BATERIA_MAX  or not posiciones_coleccionables or vidas == 0:
             btn_start.pressed = False
         
+        # Dibuja al personaje y los coleccionables
         screen.blit( personajes[ direccion ][ frame ], ( personaje_pos_x, personaje_pos_y ) )
 
         screen.blit( bayas[frame_index_bayas], (bayas_pos_x, bayas_pos_y) )        
@@ -476,6 +495,7 @@ def main():
         interfaz.dibujar_interface( screen , costo , vidas  )
         btn_reinicio.update()
         
+        # Si el boton de reinicio es presionado, se reestablece el juego
         if btn_reinicio.pressed:
             
             btn_reinicio.pressed=False
@@ -494,10 +514,10 @@ def main():
             vidas=VIDAS_MAX
             
         
-
+        # Actualiza el juego
         pygame.display.update()
         
-
+    # Termina el juego
     pygame.quit()
 
 if __name__ == "__main__":
