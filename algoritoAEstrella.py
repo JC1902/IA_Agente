@@ -17,7 +17,7 @@ def distancia_manhattan(nodo_actual, nodo_destino):
 
 def obtener_vecinos(nodo, grid):
     vecinos = []
-    direcciones = [(1, 0), (-1, 0), (0, 1), (0, -1)]  # Movimientos arriba, abajo, izquierda, derecha
+    direcciones = [(-1, 0), (0, 1), (1, 0),(0, -1)]  # Movimientos arriba, abajo, izquierda, derecha
     for dx, dy in direcciones:
         nx, ny = nodo.x + dx, nodo.y + dy
         if 0 <= nx < len(grid) and 0 <= ny < len(grid[0]) and grid[ny][nx] != 1 and grid[ny][nx] != 2 and grid[ny][nx] != 3:
@@ -41,12 +41,6 @@ def a_estrella(grid, inicio, metas):
     nodo_esta_en_lista=False
     while (camino_completado==False):
         nodo_actual = cola_cerrada.__getitem__(len(cola_cerrada)-1)
-        # if not metas_por_alcanzar:
-        #         camino_completado=True
-        #         return cola_cerrada
-        # if not metas_por_alcanzar:
-        #     camino_completado=True
-        #     return devolver_camino(cola_cerrada)
         
         if(nodo_actual is None):
             break
@@ -68,8 +62,13 @@ def a_estrella(grid, inicio, metas):
                 else:
                     break
                     # return "Se terminaron las metas"
-                nuevo_g = nodo_actual.g + 1  # Costo de movimiento uniforme
-
+                if grid[vecino.x][vecino.y] == 4:
+                    nuevo_g = nodo_actual.g + 2 #Costo por tierra
+                if grid[vecino.x][vecino.y] == 6:
+                    nuevo_g = nodo_actual.g + 3 # Costo por lodo
+                if grid[vecino.x][vecino.y] == 5:
+                    nuevo_g = nodo_actual.g + 1  # Costo de movimiento uniforme
+                nuevo_g = nodo_actual.g + 1
                 vecino.g = nuevo_g
                 vecino.h = min(distancia_manhattan(vecino, meta) for meta in metas)
                 vecino.f = vecino.g + vecino.h
@@ -95,22 +94,3 @@ def devolver_camino(camino):
         camino_final.append((nodo.x,nodo.y))
     return camino_final
 
-
-# Ejemplo de uso:
-# grid = [
-#     [0, 0, 0, 0, 0],
-#     [0, 0, 1, 0, 0],
-#     [0, 0, 0, 0, 1],
-#     [0, 1, 1, 0, 0],
-#     [0, 0, 0, 0, 0]
-# ]
-
-# inicio = Nodo(0, 0)
-# metas = {(4, 4), (2, 2), (3, 3), (1, 1),(4,3),(3,4)}
-
-# ruta_optima = a_estrella(grid, inicio, metas)
-# ruta_formateada=devolver_camino(ruta_optima)
-# if ruta_optima:
-#     print("Ruta óptima encontrada:", ruta_formateada)
-# else:
-#     print("No se encontró una ruta válida.")
