@@ -1,4 +1,3 @@
-import heapq
 import math
 class Nodo:
     def __init__(self, x, y):
@@ -29,11 +28,7 @@ def distancia_entre_puntos(x1, y1, x2, y2):
 def a_estrella(grid, inicio, metas):
     cola_abierta = []
     cola_cerrada = []
-    costo=0
-    pos_x_pila = 4
-    pos_y_pila = 8
     metas_por_alcanzar = list(metas)
-    # cola_abierta.append(inicio)
     cola_cerrada.append(inicio)
     inicio.g = 0
     camino_completado=False
@@ -61,7 +56,7 @@ def a_estrella(grid, inicio, metas):
                     None
                 else:
                     break
-                    # return "Se terminaron las metas"
+                    
                 if grid[vecino.x][vecino.y] == 4:
                     nuevo_g = nodo_actual.g + 2 #Costo por tierra
                 if grid[vecino.x][vecino.y] == 6:

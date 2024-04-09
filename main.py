@@ -3,7 +3,6 @@ import algoritoAEstrella
 from assets import *
 import random
 import time
-import threading
 import math
 from interfaz import Interfaz ,BATERIA_MAX , VIDAS_MAX , Button
 
@@ -160,7 +159,7 @@ def colocar_enemigos(posiciones_enemigos, posiciones_colectables, frame_enemigo,
 
 
 tipo_piso = []
-numero_ceros = 0
+
 index_pisos = 0
 
 for y, row in enumerate(mapaJuego):
@@ -168,8 +167,8 @@ for y, row in enumerate(mapaJuego):
             if cell == 0:
                 piso = random.choice( [ tierra, tierra, pasto, lodo ] )
                 tipo_piso.append(piso)
-                numero_ceros += 1
-print(numero_ceros)
+                
+
 
 for y, row in enumerate( mapaJuego ):
     for x, cell in enumerate( row ):
@@ -185,11 +184,6 @@ for y, row in enumerate( mapaJuego ):
         
             index_pisos += 1
 
-# Imprimir la matriz
-for fila in mapaJuego:
-    for elemento in fila:
-        print(elemento, end=' ')
-    print()
 
 # Función para dibujar el mapa del juego
 def draw_map(mapa):
@@ -227,7 +221,7 @@ def contacto_enemigo(x , y):
     posicion_pj = ( x , y )
     i = 10
     for posicion in pos_enemigos :
-        # interfaz.dibujar_texto(screen, str(posicion), 0, i)
+        
         if posicion == posicion_pj :
             return True
         i = i + 20
@@ -238,14 +232,13 @@ def distancia_entre_puntos(x1, y1, x2, y2):
     distancia = math.sqrt((x2 - x1)**2 + (y2 - y1)**2)
     return distancia
 def reiniciar_juego():
-    frames_per_second = 20  # Velocidad de cambio de frames por segundo
-    time_elapsed = 0
+    
     frame = 0
     
     posiciones_personaje = [(1,1), (1,8), (8,1), (8,8)]
     pos_personaje_x, pos_personaje_y = random.choice(posiciones_personaje)
 
-    pos_personaje__final = algoritoAEstrella.Nodo(pos_personaje_x,pos_personaje_y)
+    
     posiciones_coleccionables = [(random.randrange(1, 9), random.randrange(1, 9)) for _ in range(10)]
     screen.fill(FONDO)
     draw_map(mapaJuego)
@@ -267,7 +260,7 @@ def reiniciar_juego():
 # Función principal del juego
 
 def main():
-    clock = pygame.time.Clock()  # Crear un objeto para ayudar a controlar el tiempo
+   
     frames_per_second = 20  # Velocidad de cambio de frames por segundo
     time_elapsed = 0
     frame = 0    
